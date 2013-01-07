@@ -3,3 +3,5 @@
 /eggs/
 /develop-eggs/
 /parts/
+/_build/
+*.pyc
