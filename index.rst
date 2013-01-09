@@ -308,15 +308,17 @@ other larger data structures, the ``pp`` command can be very useful.
    'result': 1.0}
   (Pdb)
 
-PDB also has an ``args`` command. XXX
+PDB also has an ``args`` command that will output the arguments passed
+to the current function.
+
 
 Evaluating Expressions
 ----------------------
 
-XXX
+.. XXX
 
-You can also use the ``print``
-statement, but
+.. You can also use the ``print``
+.. statement, but
 
 .. Modifying Values
 .. ----------------
@@ -533,60 +535,88 @@ enter the debugger. A condition can be specified as the final argument
 to the ``break`` command. It can also be set (or changed) later with
 the ``condition`` command.
 
+For example, to set a breakpoint for POST requests in a Django
+project::
 
-b(reak) [[filename:]lineno | function[, condition]]
-With a lineno argument, set a break there in the current file. With a function argument, set a break at the first executable statement within that function. The line number may be prefixed with a filename and a colon, to specify a breakpoint in another file (probably one that hasn’t been loaded yet). The file is searched on sys.path. Note that each breakpoint is assigned a number to which all the other breakpoint commands refer.
+  $ ../bin/python -m pdb ../bin/django runserver --settings=pdbdemo.settings --nothreading --noreload
+  > /home/nathan/p/pdb/bin/django(3)<module>()
+  -> import sys
+  (Pdb) break django/core/handlers/base.py:82, request.method.lower() == 'post'
+  Breakpoint 1 at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:82
+  (Pdb) break
+  Num Type         Disp Enb   Where
+  1   breakpoint   keep yes   at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:82
+          stop only if request.method.lower() == 'post'
 
-If a second argument is present, it is an expression which must evaluate to true before the breakpoint is honored.
+The condition follows the module and line number, separated by a
+comma, and is evaluated in the context of the breakpoint.
 
+If you make a POST request using ``curl`` after setting the
+breakpoint, the breakpoint will trigger. Making a GET request will not
+trigger the breakpoint.
 
-cl(ear) [filename:lineno | bpnumber [bpnumber ...]]
-With a filename:lineno argument, clear all the breakpoints at this line. With a space separated list of breakpoint numbers, clear those breakpoints. Without argument, clear all breaks (but first ask confirmation).
-disable [bpnumber [bpnumber ...]]
-Disables the breakpoints given as a space separated list of breakpoint numbers. Disabling a breakpoint means it cannot cause the program to stop execution, but unlike clearing a breakpoint, it remains in the list of breakpoints and can be (re-)enabled.
-enable [bpnumber [bpnumber ...]]
-Enables the breakpoints specified.
-ignore bpnumber [count]
-Sets the ignore count for the given breakpoint number. If count is omitted, the ignore count is set to 0. A breakpoint becomes active when the ignore count is zero. When non-zero, the count is decremented each time the breakpoint is reached and the breakpoint is not disabled and any associated condition evaluates to true.
-condition bpnumber [condition]
-Condition is an expression which must evaluate to true before the breakpoint is honored. If condition is absent, any existing condition is removed; i.e., the breakpoint is made unconditional.
+::
+
+  (Pdb) c
+  Validating models...
+
+  0 errors found
+  Django version 1.4.3, using settings 'pdbdemo.settings'
+  Development server is running at http://127.0.0.1:8000/
+  Quit the server with CONTROL-C.
+  > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(82)get_response()
+  -> urlconf = settings.ROOT_URLCONF
+  (Pdb) l
+   77  	        try:
+   78  	            # Setup default url resolver for this thread, this code is outside
+   79  	            # the try/except so we don't get a spurious "unbound local
+   80  	            # variable" exception in the event an exception is raised before
+   81  	            # resolver is set
+   82 B->	            urlconf = settings.ROOT_URLCONF
+   83  	            urlresolvers.set_urlconf(urlconf)
+   84  	            resolver = urlresolvers.RegexURLResolver(r'^/', urlconf)
+   85  	            try:
+   86  	                response = None
+   87  	                # Apply request middleware
+  (Pdb) n
+  > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(83)get_response()
+  -> urlresolvers.set_urlconf(urlconf)
+  (Pdb) !request.method
+  'POST'
+  (Pdb) c
+  [08/Jan/2013 22:36:13] "POST /hello/world HTTP/1.1" 200 59
 
 
 Extending PDB
 =============
 
+PDB is pretty powerful on its own, but there are also ways to
+customize it: add commands, set default behavior, etc. As an example,
+ipdb_, a drop-in replacement that provides syntax highlighting and tab
+completion, simply subclasses the ``Pdb`` class.
 
-commands [bpnumber]
-Specify a list of commands for breakpoint number bpnumber. The commands themselves appear on the following lines. Type a line containing just ‘end’ to terminate the commands. An example:
+.pdbrc
+------
 
-(Pdb) commands 1
-(com) print some_variable
-(com) end
-(Pdb)
-To remove all commands from a breakpoint, type commands and follow it immediately with end; that is, give no commands.
+When PDB starts it looks for a ``.pdbrc`` file in the user's home
+directory and the current directory (if both are found, the current
+directory file is loaded after the one in the home directory). The
+contents of the ``.pdbrc`` is executed as if it'd been typed into the
+PDB prompt.
 
-With no bpnumber argument, commands refers to the last breakpoint set.
+There are two PDB commands that make this particularly powerful.
 
-You can use breakpoint commands to start your program up again. Simply use the continue command, or step, or any other command that resumes execution.
+The ``alias`` command allows you to alias a new command to some PDB
+statement. For example::
 
-Specifying any command resuming execution (currently continue, step, next, return, jump, quit and their abbreviations) terminates the command list (as if that command was immediately followed by end). This is because any time you resume execution (even with a simple next or step), you may encounter another breakpoint–which could have its own command list, leading to ambiguities about which list to execute.
+  alias printdict for key, value in %1.items(): print "%s: %s" % (key, value)
 
-If you use the ‘silent’ command in the command list, the usual message about stopping at a breakpoint is not printed. This may be desirable for breakpoints that are to print a specific message and then continue. If none of the other commands print anything, you see no sign that the breakpoint was reached.
+Will create a ``printdict`` command. ``%1`` will replaced by the first
+parameter to the command. Aliases can reference other aliased
+commands, allowing you to compose more powerful commands.
 
-New in version 2.5.
-
-
-alias [name [command]]
-Creates an alias called name that executes command. The command must not be enclosed in quotes. Replaceable parameters can be indicated by %1, %2, and so on, while %* is replaced by all the parameters. If no command is given, the current alias for name is shown. If no arguments are given, all aliases are listed.
-
-Aliases may be nested and can contain anything that can be legally typed at the pdb prompt. Note that internal pdb commands can be overridden by aliases. Such a command is then hidden until the alias is removed. Aliasing is recursively applied to the first word of the command line; all other words in the line are left alone.
-
-As an example, here are two useful aliases (especially when placed in the .pdbrc file):
-
-#Print instance variables (usage "pi classInst")
-alias pi for k in %1.__dict__.keys(): print "%1.",k,"=",%1.__dict__[k]
-#Print instance variables in self
-alias ps pi self
+PDB also allows you to specify commands to execute when a breakpoint
+is triggered. See the `command reference`_ for details.
 
 Other Tools
 ===========
