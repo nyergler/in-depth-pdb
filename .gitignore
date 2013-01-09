@@ -5,3 +5,5 @@
 /parts/
 /_build/
 *.pyc
+*.egg-info
+/pdbdemo/pdbdemo.sql

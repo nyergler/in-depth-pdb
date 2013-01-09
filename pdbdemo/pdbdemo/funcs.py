@@ -1,4 +1,7 @@
-def sum(*args):
+import itertools
+
+
+def calc_sum(*args):
 
     result = 0
 
@@ -30,6 +33,13 @@ def try_product_inverses(ints):
 
     return result
 
+
+def compound(*ints):
+
+    return calc_sum(
+        *[try_product_inverses(x)
+          for x in itertools.combinations(ints, len(ints) / 2)]
+    )
 
 if __name__ == '__main__':
 
