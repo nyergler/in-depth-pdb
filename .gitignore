@@ -7,3 +7,7 @@
 *.pyc
 *.egg-info
 /pdbdemo/pdbdemo.sql
+/lib/
+/lib64/
+.Python
+/include/
