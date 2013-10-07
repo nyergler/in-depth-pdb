@@ -40,6 +40,7 @@ Other Tools
 * ipdb_ is a drop-in replacement for PDB that provides syntax
   highlighting, tab completion, and better introspection.
 * rdb_
+* pudb_
 * ``pdbtrack`` is included with modern distributions of
   `python-mode`_, and allows Emacs to open files as they're debugged
   by PDB. Recent versions add support for `filename mapping`_ which is
@@ -63,3 +64,4 @@ Further Reading
 .. _rdb: http://dzone.com/snippets/remote-debugging-python-using
 .. _`python-mode`: https://launchpad.net/python-mode/
 .. _`filename mapping`: http://yergler.net/blog/2012/06/07/mapping-file-paths-for-pdbtrack/
+.. _pudb: https://pypi.python.org/pypi/pudb
