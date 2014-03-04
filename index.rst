@@ -2,12 +2,6 @@
  In Depth PDB
 ==============
 
-.. note::
-
-   This document was prepared for presentation to the engineering team
-   at Eventbrite. It is currently under development; please send
-   suggestions to ``nathan+pdb@yergler.net``.
-
 
 Most developers have a preferred debugging strategy, and many of them
 are variations on the ``print`` statement. There's nothing wrong with
