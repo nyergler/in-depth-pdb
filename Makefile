@@ -159,3 +159,8 @@ slides:
 html+slides: html slides
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html+slides/
 	$(SPHINXBUILD) -b slides $(ALLSPHINXOPTS) $(BUILDDIR)/html+slides/slides
+
+# Support for flymake-mode's flymake-simple-make-init in Emacs
+check-syntax:
+	$(SPHINXBUILD) -n -N -q -b html $(ALLSPHINXOPTS) $(BUILDDIR)/
+	$(SPHINXBUILD) -n -N -q -b slides $(ALLSPHINXOPTS) $(BUILDDIR)/slides
