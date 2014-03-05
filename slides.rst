@@ -17,6 +17,91 @@ PDB
 Invoking PDB
 ============
 
+Explicit Trace Points
+---------------------
+
+.. literalinclude:: /samples/fibonacci_trace.py
+   :linenos:
+   :emphasize-lines: 13
+
+::
+
+   $ python samples/fibonacci_trace.py 5
+   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(12)<module>()
+   -> print (fib(int(sys.argv[-1])))
+   (Pdb)
+
+PDB stops before the first statement in your program is executed,
+waiting for a command.
+
+
+``next``
+--------
+
+.. literalinclude:: /samples/fibonacci_trace.py
+   :linenos:
+   :emphasize-lines: 14
+
+::
+
+   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
+   -> print (fib(sys.argv[-1]))
+   (Pdb) n
+   ValueError: "invalid literal for int() with base 10: 'samples/fibonacci_trace.py'"
+   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
+   -> print (fib(sys.argv[-1]))
+   (Pdb)
+
+* ``next`` will execute the next statement (including any calls it
+  makes)
+
+
+``step``
+--------
+
+.. literalinclude:: /samples/fibonacci_trace.py
+   :linenos:
+   :emphasize-lines: 3
+
+::
+
+   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
+   -> print (fib(sys.argv[-1]))
+   (Pdb) s
+   --Call--
+   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(3)fib()
+   -> def fib(n):
+   (Pdb)
+
+* ``step`` will stop at the next statement (which may be inside a
+  function call)
+
+
+``cont``\ inue
+--------------
+
+.. literalinclude:: /samples/fibonacci_trace.py
+   :linenos:
+
+::
+
+   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
+   -> print (fib(sys.argv[-1]))
+   (Pdb) s
+   --Call--
+   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(3)fib()
+   -> def fib(n):
+   (Pdb) cont
+   Traceback (most recent call last):
+     File "samples/fibonacci_trace.py", line 14, in <module>
+       print (fib(sys.argv[-1]))
+     File "samples/fibonacci_trace.py", line 3, in fib
+       def fib(n):
+   ValueError: invalid literal for int() with base 10: 'samples/fibonacci_trace.py'
+
+* ``cont`` will continue execution
+
+
 Running Under PDB
 -----------------
 
@@ -27,54 +112,6 @@ Running Under PDB
    -> import sys
    (Pdb)
 
-PDB stops before the first statement in your program is executed,
-waiting for a command.
-
-* ``cont`` will continue execution
-* ``next`` will execute the next statement (including any calls it
-  makes)
-* ``step`` will stop at the next statement (which may be inside a
-  function call)
-
-Explicit Trace Points
----------------------
-
-::
-
-   def fib(n):
-       """Return the n'th fibonacci number."""
-
-       if n <= 1:
-           import pdb; pdb.set_trace()
-           return 1
-
-       return fib(n-1) + fib(n-2)
-
-::
-
-   $ python samples/fibonacci_trace.py 5
-   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(9)fib()
-   -> return 1
-   (Pdb)
-
-Post-Mortem Debugging
----------------------
-
-::
-
-   $ python
-   >>> from fibonacci import fib
-   >>> fib('25')
-   Traceback (most recent call last):
-     File "<console>", line 1, in <module>
-     File "/Users/nathan/p/pdb/samples/fibonacci.py", line 10, in fib
-       return fib(n-1) + fib(n-2)
-   TypeError: unsupported operand type(s) for -: 'str' and 'int'
-   >>> import pdb
-   >>> pdb.pm()
-   > /Users/nathan/p/pdb/samples/fibonacci.py(10)fib()
-   -> return fib(n-1) + fib(n-2)
-   (Pdb)
 
 pdb.run
 -------
