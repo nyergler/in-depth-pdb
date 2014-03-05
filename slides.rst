@@ -2,17 +2,64 @@
  In Depth PDB
 ==============
 
-Getting Started
-===============
+:Author: Nathan Yergler <nathan@yergler.net>
+:Organization:
+:Date:
+:Contact: @nyergler
 
-PDB
----
+PDB: The Python Debugger
+========================
 
-* Built-in Python debugger
-* Inspect the state of running programs
-* Repeatedly run a program as you debug it
-* Leverages Python's trace function facility
-* Extensible tool: ipdb, rdb, etc all build on it
+Look around your code
+---------------------
+
+XXX Example of inspecting locals
+
+Look around Python's code
+-------------------------
+
+::
+
+   (Pdb) b os.path.join
+   Breakpoint 2 at /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py:68
+   (Pdb) c
+   >>> os.path.join('/Users', 'nathan')
+   > /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py(73)join()
+   -> path = a
+   (Pdb) l
+    68 B	def join(a, *p):
+    69  	    """Join two or more pathname components, inserting '/' as needed.
+    70  	    If any component is an absolute path, all previous path components
+    71  	    will be discarded.  An empty last part will result in a path that
+    72  	    ends with a separator."""
+    73  ->	    path = a
+    74  	    for b in p:
+    75  	        if b.startswith('/'):
+    76  	            path = b
+    77  	        elif path == '' or path.endswith('/'):
+    78  	            path +=  b
+   (Pdb) !a
+   '/Users'
+   (Pdb) !p
+   ('nathan',)
+   (Pdb)
+
+Return to the scene of the crime
+--------------------------------
+
+XXX Post-Mortem Example
+
+Everybody ``print()``\ s
+========================
+
+``print`` is great, if you know what you're looking for
+
+PDB is Better
+=============
+
+* PDB lets you explore the state of a running program. Or a dead one.
+* PDB will run a program repeatedly as you debug it
+* Is extensible, so you can build the tools you need
 
 Invoking PDB
 ============
