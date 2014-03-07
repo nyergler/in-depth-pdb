@@ -301,6 +301,8 @@ function using ``args``.
 Listing Code
 ------------
 
+You can also give it additional parameters to control what lines are shown.
+
 ::
 
    (Pdb) list
@@ -376,37 +378,10 @@ Let's consider another example where our calculator isn't so hot.
      File "pfcalc.py", line 36, in result
        raise SyntaxError("Invalid expression.")
    SyntaxError: Invalid expression.
-
-
-More about Listing
-------------------
-
-If we execute that request under PDB, we can start looking around. We
-already saw that the ``list`` command will show you the code around
-the current position.
-
-XXX You can also give it additional parameters to control how much is
-shown.
-
-::
-
    > /Users/nathan/p/pdb/samples/pfcalc.py(36)result()
    -> raise SyntaxError("Invalid expression.")
-   (Pdb) list
-    31
-    32  	    def result(self):
-    33
-    34  	        if len(self.state) > 1:
-    35  	            # incomplete expressions
-    36  ->	            raise SyntaxError("Invalid expression.")
-    37
-    38  	        return self.state[0]
-    39
-    40
-    41  	def rpn_app(environ, start_response):
    (Pdb)
 
-XXX Python 3 list extensions
 
 Where am I?
 -----------
