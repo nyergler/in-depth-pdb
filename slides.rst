@@ -288,6 +288,12 @@ Listing Code
     32  	    def result(self):
     33
 
+.. admonition:: Python 3
+
+   Python 3.2 adds the ``ll`` (``longlist``) command, which lists *all*
+   the source code for the current function.
+
+
 Pretty Print
 ------------
 
@@ -313,7 +319,13 @@ You can also evaluate expressions using the ``!`` command.
 
    XXX
 
-XXX Python 3.2 adds an ``interact`` command.
+.. admonition:: ``interact``
+
+   New in Python 3.2, the ``interact`` command gives you an
+   interactive prompt with the same locals and globals as the current
+   position. This makes it easier to evaluate expressions and explore
+   the current position in the code.
+
 
 Navigating Execution
 ====================
