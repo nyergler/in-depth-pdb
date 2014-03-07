@@ -151,18 +151,6 @@ waiting for a command.
 
 * ``cont`` will continue execution
 
-
-Running Under PDB
------------------
-
-::
-
-   $ python -m pdb samples/fibonacci.py 5
-   > /Users/nathan/p/pdb/samples/fibonacci.py(1)<module>()
-   -> import sys
-   (Pdb)
-
-
 pdb.run
 -------
 
@@ -179,91 +167,279 @@ pdb.run
    -> if n <= 1:
    (Pdb)
 
-..
 
-   XXX
-   The interesting thing to note here is that the next frame for PDB is
-   where the error actually occurred, **not** where the debugger was
-   called. Try replacing the call to ``post_mortem`` with a call to
-   ``set_trace`` to see the difference.
+Running Under PDB
+-----------------
+
+::
+
+   $ python -m pdb samples/fibonacci.py 5
+   > /Users/nathan/p/pdb/samples/fibonacci.py(1)<module>()
+   -> import sys
+   (Pdb)
 
 
 Interacting with Locals
 =======================
 
-Inspecting Variables
---------------------
-
-
-::
-
-  >>> import funcs
-  >>> funcs.product_inverses((1,2,3,0))
-  Traceback (most recent call last):
-    File "<stdin>", line 1, in <module>
-    File "funcs.py", line 19, in product_inverses
-      result = result * (1.0 / i)
-  ZeroDivisionError: float division by zero
-  >>> import pdb
-  >>> pdb.pm()
+Consider a small web application that provides a `postfix notation`_
+calculator. You pass your arguments as path elements, and it applies
+them to the stack and returns the result.
 
 ::
 
-  > /Users/nathan/p/pdb/samples/funcs.py(19)product_inverses()
-  -> result = result * (1.0 / i)
-  (Pdb) p result
-  0.16666666666666666
-  (Pdb) p i
-  0
-  (Pdb) pp locals()
-  {'i': 0, 'ints': (1, 2, 3, 0), 'result': 0.16666666666666666}
-  (Pdb)
+   $ curl http://localhost:8000/2/1/+
+   The answer is 3
+   $ curl http://localhost:8000/2/10/\*
+   The answer is 20
+   curl http://localhost:8000/2/10/+/2/\*
+   The answer is 24
 
-PDB also has an ``args`` command that will output the arguments passed
-to the current function.
+It's cool, but not great with unexpected input.
+
+::
+
+   $ curl http://localhost:8000/2/abc/+/
+   Traceback (most recent call last):
+     ...
+     File "/Users/nathan/p/pdb/samples/pfcalc_wsgi.py", line 39, in handle
+       handler.run(self.server.get_app())
+     File "/Users/nathan/p/pdb/samples/pfcalc_wsgi.py", line 17, in run
+       self.result = application(self.environ, self.start_response)
+     File "pfcalc.py", line 46, in rpn_app
+       c.push(element)
+     File "pfcalc.py", line 28, in push
+       value = int(value_or_operator)
+   ValueError: invalid literal for int() with base 10: 'abc'
+
+We can run it under ``pdb`` to see what's actually happening when it
+blows up.
+
+::
+
+   python -m pdb pfcalc.py
+   > /Users/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   -> from wsgiref.simple_server import make_server
+   (Pdb) cont
+   Serving on port 8000...
+
+::
+
+   $ curl http://localhost:8000/2/abc/+
+
+Now when we hit the bad URL with ``curl``, Python drops into PDB.
+
+::
+
+   Traceback (most recent call last):
+     ...
+     File "pfcalc_wsgi.py", line 39, in handle
+       handler.run(self.server.get_app())
+     File "pfcalc_wsgi.py", line 17, in run
+       self.result = application(self.environ, self.start_response)
+     File "pfcalc.py", line 46, in rpn_app
+       c.push(element)
+     File "pfcalc.py", line 28, in push
+       value = int(value_or_operator)
+   ValueError: invalid literal for int() with base 10: 'abc'
+   Uncaught exception. Entering post mortem debugging
+   Running 'cont' or 'step' will restart the program
+   > /Users/nathan/p/pdb/samples/pfcalc.py(28)push()
+   -> value = int(value_or_operator)
+   (Pdb)
+
+
+Inspecting State
+----------------
+
+You can ``p``\ rint the value of a variable.
+
+::
+
+   > /Users/nathan/p/pdb/samples/pfcalc.py(28)push()
+   -> value = int(value_or_operator)
+   (Pdb) p value_or_operator
+   'abc'
+
+You can also look at what arguments were passed to the current
+function using ``args``.
 
 ::
 
    (Pdb) args
-   ints = (1, 2, 3, 0)
+   self = <__main__.Calculator object at 0x1047bff10>
+   value_or_operator = abc
+
+Listing Code
+------------
+
+::
+
+   (Pdb) list
+    23  	            value = self.OPERATORS[value_or_operator](
+    24  	                self.state.pop(),
+    25  	                self.state.pop(),
+    26  	            )
+    27  	        else:
+    28  ->	            value = int(value_or_operator)
+    29
+    30  	        self.state.append(value)
+    31
+    32  	    def result(self):
+    33
+
+Pretty Print
+------------
+
+You can pretty print the value of a variable using the ``pp`` command.
+
+::
+
+   (Pdb) pp self.state
+   [2]
+   (Pdb) pp self.OPERATORS
+   {'*': <slot wrapper '__mul__' of 'int' objects>,
+    '+': <slot wrapper '__add__' of 'int' objects>,
+    '/': <slot wrapper '__div__' of 'int' objects>}
+   (Pdb)
+
 
 Evaluating Expressions
 ----------------------
 
+You can also evaluate expressions using the ``!`` command.
+
 ::
 
-   (Pdb) !product_inverses((1, 2, 3))
-   0.16666666666666666
-   (Pdb)
-
-Note that it's ``product_inverses``, not ``funcs.product_inverses``:
-the expression is executed in the context of the code being debugged.
+   XXX
 
 XXX Python 3.2 adds an ``interact`` command.
-
-Modifying Variables
--------------------
-
-XXX
 
 Navigating Execution
 ====================
 
-Where Am I?
------------
+Let's consider another example where our calculator isn't so hot.
 
-``where``
+::
 
-``list``
+   $ curl http://localhost:8000/2/3/+/5
+   Traceback (most recent call last):
+     ...
+     File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py", line 649, in __init__
+       self.handle()
+     File "/Users/nathan/p/pdb/samples/pfcalc_wsgi.py", line 39, in handle
+       handler.run(self.server.get_app())
+     File "/Users/nathan/p/pdb/samples/pfcalc_wsgi.py", line 17, in run
+       self.result = application(self.environ, self.start_response)
+     File "pfcalc.py", line 54, in rpn_app
+       "The answer is %d" % (c.result(),),
+     File "pfcalc.py", line 36, in result
+       raise SyntaxError("Invalid expression.")
+   SyntaxError: Invalid expression.
+
+
+More about Listing
+------------------
+
+If we execute that request under PDB, we can start looking around. We
+already saw that the ``list`` command will show you the code around
+the current position.
+
+XXX You can also give it additional parameters to control how much is
+shown.
+
+::
+
+   > /Users/nathan/p/pdb/samples/pfcalc.py(36)result()
+   -> raise SyntaxError("Invalid expression.")
+   (Pdb) list
+    31
+    32  	    def result(self):
+    33
+    34  	        if len(self.state) > 1:
+    35  	            # incomplete expressions
+    36  ->	            raise SyntaxError("Invalid expression.")
+    37
+    38  	        return self.state[0]
+    39
+    40
+    41  	def rpn_app(environ, start_response):
+   (Pdb)
 
 XXX Python 3 list extensions
 
-The Call Stack
---------------
+Where am I?
+-----------
 
-``up``
+The ``where`` command shows the call stack that got us into this mess.
 
-``down``
+::
+
+   (Pdb) where
+     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pdb.py(1314)main()
+   -> pdb._runscript(mainpyfile)
+     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pdb.py(1233)_runscript()
+   -> self.run(statement)
+     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/bdb.py(400)run()
+   -> exec cmd in globals, locals
+     <string>(1)<module>()
+     /Users/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   -> from wsgiref.simple_server import make_server
+     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(238)serve_forever()
+   -> self._handle_request_noblock()
+     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(297)_handle_request_noblock()
+   -> self.handle_error(request, client_address)
+     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(295)_handle_request_noblock()
+   -> self.process_request(request, client_address)
+     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(321)process_request()
+   -> self.finish_request(request, client_address)
+     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(334)finish_request()
+   -> self.RequestHandlerClass(request, client_address, self)
+     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(649)__init__()
+   -> self.handle()
+     /Users/nathan/p/pdb/samples/pfcalc_wsgi.py(39)handle()
+   -> handler.run(self.server.get_app())
+     /Users/nathan/p/pdb/samples/pfcalc_wsgi.py(17)run()
+   -> self.result = application(self.environ, self.start_response)
+     /Users/nathan/p/pdb/samples/pfcalc.py(54)rpn_app()
+   -> "The answer is %d" % (c.result(),),
+   > /Users/nathan/p/pdb/samples/pfcalc.py(36)result()
+   -> raise SyntaxError("Invalid expression.")
+   (Pdb)
+
+Navigating the Stack
+--------------------
+
+You can use the ``up`` command to move one frame up the stack.
+
+::
+
+   (Pdb) up
+   > /Users/nathan/p/pdb/samples/pfcalc.py(54)rpn_app()
+   -> "The answer is %d" % (c.result(),),
+
+PDB shows that the current position is now the call to ``result``, and
+other PDB commands are now in that context.
+
+::
+
+   (Pdb) list
+    49  	    headers = [('Content-type', 'text/plain')]
+    50
+    51  	    start_response(status, headers)
+    52
+    53  	    return [
+    54  ->	        "The answer is %d" % (c.result(),),
+    55  	    ]
+    56
+    57
+    58  	httpd = make_server('', 8000, rpn_app,
+    59  	                    server_class=CalculatorServer,
+   (Pdb)
+
+
+XXX ``down command``
+
 
 Following Execution
 -------------------
@@ -285,6 +461,35 @@ You can also jump over parts of the code using the cunningly named
    for instance it is not possible to jump into the middle of a for loop
    or out of a finally clause." I don't find many uses for jumps, but
    your mileage may vary.
+
+
+Post-Mortem Debugging
+=====================
+
+::
+
+   $ python
+   >>> from fibonacci import fib
+   >>> fib('25')
+   Traceback (most recent call last):
+     File "<console>", line 1, in <module>
+     File "/Users/nathan/p/pdb/samples/fibonacci.py", line 10, in fib
+       return fib(n-1) + fib(n-2)
+   TypeError: unsupported operand type(s) for -: 'str' and 'int'
+   >>> import pdb
+   >>> pdb.pm()
+   > /Users/nathan/p/pdb/samples/fibonacci.py(10)fib()
+   -> return fib(n-1) + fib(n-2)
+   (Pdb)
+
+
+..
+
+   XXX
+   The interesting thing to note here is that the next frame for PDB is
+   where the error actually occurred, **not** where the debugger was
+   called. Try replacing the call to ``post_mortem`` with a call to
+   ``set_trace`` to see the difference.
 
 
 Breakpoints
@@ -462,6 +667,12 @@ trigger the breakpoint.
   [08/Jan/2013 22:36:13] "POST /hello/world HTTP/1.1" 200 59
 
 
+Modifying Variables
+-------------------
+
+XXX
+
+
 Extending PDB
 =============
 
@@ -599,3 +810,4 @@ Further Reading
 .. _`python-mode`: https://launchpad.net/python-mode/
 .. _`filename mapping`: http://yergler.net/blog/2012/06/07/mapping-file-paths-for-pdbtrack/
 .. _pudb: https://pypi.python.org/pypi/pudb
+.. _`postfix notation`: http://en.wikipedia.org/wiki/Postfix_notation
