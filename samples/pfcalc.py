@@ -54,10 +54,11 @@ def rpn_app(environ, start_response):
         "The answer is %d" % (c.result(),),
     ]
 
+if __name__ == '__main__':
 
-httpd = make_server('', 8000, rpn_app,
-                    server_class=CalculatorServer,
-                    handler_class=CalculatorWSGIHandler,
-)
-print "Serving on port 8000..."
-httpd.serve_forever()
+    httpd = make_server('', 8000, rpn_app,
+                        server_class=CalculatorServer,
+                        handler_class=CalculatorWSGIHandler,
+    )
+    print "Serving on port 8000..."
+    httpd.serve_forever()

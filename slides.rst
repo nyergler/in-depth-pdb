@@ -481,30 +481,70 @@ You can also jump over parts of the code using the cunningly named
 Post-Mortem Debugging
 =====================
 
+Executing your program using the ``pdb`` module uses the *post-mortem*
+debugger. The post-mortem debugger uses ``sys.last_exception`` to
+figure out where to start debugging.
+
+Our server starts with the following lines::
+
+  httpd = make_server('', 8000, rpn_app,
+                      server_class=CalculatorServer,
+                      handler_class=CalculatorWSGIHandler,
+  )
+  print "Serving on port 8000..."
+  httpd.serve_forever()
+
+Using post-mortem debugging is the same as modifying that to something
+like::
+
+  try:
+    httpd = make_server('', 8000, rpn_app,
+                        server_class=CalculatorServer,
+                        handler_class=CalculatorWSGIHandler,
+    )
+    print "Serving on port 8000..."
+    httpd.serve_forever()
+  except:
+    import pdb
+    pdb.post_mortem()  # XXX
+
+
+So what's the difference between that and using ``set_trace``?
+
 ::
 
-   $ python
-   >>> from fibonacci import fib
-   >>> fib('25')
-   Traceback (most recent call last):
-     File "<console>", line 1, in <module>
-     File "/Users/nathan/p/pdb/samples/fibonacci.py", line 10, in fib
-       return fib(n-1) + fib(n-2)
-   TypeError: unsupported operand type(s) for -: 'str' and 'int'
-   >>> import pdb
-   >>> pdb.pm()
-   > /Users/nathan/p/pdb/samples/fibonacci.py(10)fib()
-   -> return fib(n-1) + fib(n-2)
+  try:
+    httpd = make_server('', 8000, rpn_app,
+                        server_class=CalculatorServer,
+                        handler_class=CalculatorWSGIHandler,
+    )
+    print "Serving on port 8000..."
+    httpd.serve_forever()
+  except:
+    import pdb
+    pdb.set_trace()
+
+
+If we run this version of the server and trigger an error, the
+difference will be obvious.
+
+::
+
+   \
+   $ curl http://localhost:8000/2/3/+/5
+
+::
+
+   $ python pf_settrace.py
+   --Return--
+   > /home/nathan/p/pdb/samples/pf_settrace.py(15)<module>()->None
+   -> pdb.set_trace()
    (Pdb)
 
-
-..
-
-   XXX
-   The interesting thing to note here is that the next frame for PDB is
-   where the error actually occurred, **not** where the debugger was
-   called. Try replacing the call to ``post_mortem`` with a call to
-   ``set_trace`` to see the difference.
+As you can see, when ``set_trace`` enters the debugger, you don't have
+any of the exception context. The error has already happened, and
+you're too late. ``set_trace`` is useful when you want to pause
+execution and look around, but not when you're catching an exception.
 
 
 Breakpoints
