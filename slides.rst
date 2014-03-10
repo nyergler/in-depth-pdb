@@ -550,77 +550,87 @@ execution and look around, but not when you're catching an exception.
 Breakpoints
 ===========
 
-Breakpoints vs. set_trace
--------------------------
+So far we've primarily looked at entering the debugger explicitly
+(``set_trace``) and invoking the post-mortem debugger on exception
+(``python -m pdb``). Of course it'd be nice to start the debugger
+*before* we run into trouble.
 
-So far we've talked about how to enter the debugger and how to
-navigate the stack and follow execution, and those skills will get you
-pretty far. But there are times when it's not convenient to insert a
-call to ``set_trace``, and not practical to step all the way to the
-problem point. For example, what if you want to inspect how middleware
-is loaded in Django? The solution is *breakpoints*.
-
-A breakpoint is similar to a call to ``set_trace``: when Python
-encounters one, it drops into the debugger. But breakpoints can have
-conditions associated with them, and can be selectively enabled and
-disabled during the run of a program, making them more flexible and
-powerful.
+**PDB breakpoints let you enter the debugger at a specific point
+without modifying the source code.**
 
 Setting Breakpoints
 -------------------
 
 A breakpoint is set using the ``break`` command. For example, if we
-wanted to stop the program when we load middleware, we'd start the
-program, enter PDB, and then set the breakpoint::
+want to inspect the path handling portion of our calculator, we might
+want to enter the debugger when ``rpn_app`` is called:
 
-  $ ../bin/python -m pdb ../bin/django runserver --settings=pdbdemo.settings --nothreading --noreload
-  > /Users/nathan/work/pdb/bin/django(3)<module>()
-  -> import sys
-  (Pdb) break django/core/handlers/base.py:31
-  Breakpoint 1 at /Users/nathan/work/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:31
-  (Pdb) c
-  Validating models...
+.. literalinclude:: /samples/pfcalc.py
+   :pyobject: rpn_app
 
-  0 errors found
-  Django version 1.4.3, using settings 'pdbdemo.settings'
-  Development server is running at http://127.0.0.1:8000/
-  Quit the server with CONTROL-C.
+We can do this with a breakpoint.
 
-If we access a URL on the test server, we'll see the debugger start::
+.. code-sample:: bash
+   :emphasize-lines: 4
 
-  > /Users/nathan/work/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(31)load_middleware()
-  -> from django.conf import settings
-  (Pdb)
+  $ python -m pdb pfcalc.py
+  > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+  -> from wsgiref.simple_server import make_server
+  (Pdb) break pfcalc.rpn_app
+  Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:41
+  (Pdb) cont
+  Serving on port 8000...
 
-If we ``cont``\ inue at this point, we'll see Django is ready to serve
-requests.
+The ``break`` command takes an argument which tells it where to break.
+In this case it's a ``module.callable`` dotted path. It prints out
+where the breakpoint was set, and the breakpoint number (**1** in this
+example).
+
+.. possible slide here just showing the command?
+
+You can also give it a filename and a line number.
+
+.. code-sample:: bash
+   :emphasize-lines: 4
+
+  $ python -m pdb pfcalc.py
+  > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+  -> from wsgiref.simple_server import make_server
+  (Pdb) break pfcalc.py:41
+  Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:41
+  (Pdb) cont
+  Serving on port 8000...
+
+Note that we then exit the debugger by telling it to ``cont``inue.
+
+If we make a request to our application, we'll see it drop into PDB.
 
 ::
 
-  (Pdb) c
-  Validating models...
-
-  0 errors found
-  Django version 1.4.3, using settings 'pdbdemo.settings'
-  Development server is running at http://127.0.0.1:8000/
-  Quit the server with CONTROL-C.
-
-When we request a page with the browser, we'll see our breakpoint
-triggered. Issuing the ``where`` command, we can see that we're inside
-the request handler and ``load_middleware()``.
+   $ curl http://localhost:8000/2/3/+
 
 ::
 
-  > /Users/nathan/work/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(31)load_middleware()
-  -> from django.conf import settings
-  (Pdb) where
+   > /home/nathan/p/pdb/samples/pfcalc.py(43)rpn_app()
+   -> c = Calculator()
+   (Pdb) n
+   > /home/nathan/p/pdb/samples/pfcalc.py(45)rpn_app()
+   (Pdb) !environ['PATH_INFO']
+   '/2/3/+'
 
-  ...
+Issuing the ``break`` command without any arguments will report on the
+defined breakpoints::
 
-    /Users/nathan/work/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/wsgi.py(219)__call__()
-  -> self.load_middleware()
-  > /Users/nathan/work/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(31)load_middleware()
-  -> from django.conf import settings
+  (Pdb) break
+  Num Type         Disp Enb   Where
+  1   breakpoint   keep yes   at /home/nathan/p/pdb/samples/pfcalc.py:41
+          breakpoint already hit 1 times
+
+
+
+
+   (Pdb) cont
+   127.0.0.1 - - [09/Mar/2014 17:18:42] "GET /2/3/+ HTTP/1.1" 200 15
 
 
 Note that breakpoints are *thread specific*. This means that when
@@ -640,13 +650,11 @@ under the PDB module. The breakpoint is still active.
 
 ::
 
-  (Pdb) break
-  Num Type         Disp Enb   Where
-  1   breakpoint   keep yes   at /Users/nathan/work/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:31
-          breakpoint already hit 1 time
+   (Pdb) break
+   Num Type         Disp Enb   Where
+   1   breakpoint   keep yes   at /home/nathan/p/pdb/samples/pfcalc.py:41
+           breakpoint already hit 4 times
 
-You can see that PDB reports how many times the breakpoint has been
-triggered.
 
 Toggling Breakpoints
 --------------------
@@ -657,9 +665,9 @@ behavior with the following commands:
 * ``disable [bpnum]`` disables the given breakpoint. The breakpoint
   remains set, but will not be triggered when the line is encountered.
 * ``enable [bpnum]`` enables the given breakpoint.
-* ``clear`` clears the breakpoints specified. If no breakpoints are
-  specified, prompt to clear all breakpoints.
 * ``ignore bpnum [count]`` will ignore a breakpoint for [count] hits.
+* ``clear [bpnum]`` clears the breakpoints specified. If no breakpoints are
+  specified, prompt to clear all breakpoints.
 
 Breakpoint Conditions
 ---------------------
