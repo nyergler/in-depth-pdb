@@ -96,10 +96,20 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
-# -- Options for HTML 5 Slide output -------------------------------------------
+# -- Options for HTML Slide output -------------------------------------------
 
-slide_theme = 'slides'
-slide_theme_options = {'custom_css': 'custom.css'}
+slide_theme = 'slides2'
+slide_theme_options = {
+    'custom_css': 'pdb-slides.css',
+    'presenters': [
+        {
+            'name': 'Nathan Yergler',
+            'twitter': '@nyergler',
+            'www': 'http://yergler.net',
+            'github': 'http://github.com/nyergler'
+        },
+    ],
+}
 
 slide_link_html_to_slides = True
 slide_link_html_sections_to_slides = True
@@ -125,7 +135,7 @@ html_theme = 'nature'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+html_title = project
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 html_short_title = project

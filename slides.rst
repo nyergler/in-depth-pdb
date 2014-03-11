@@ -1,14 +1,6 @@
 .. highlight:: python
-   :linenothreshold: 5
 
-==============
- In Depth PDB
-==============
-
-:Author: Nathan Yergler <nathan@yergler.net>
-:Organization:
-:Date:
-:Contact: @nyergler
+.. rst-class:: segue dark nobackground
 
 PDB: The Python Debugger
 ========================
@@ -18,10 +10,13 @@ Look around your code
 
 XXX Example of inspecting locals
 
+.. rst-class:: content-smaller
+
 Look around Python's code
 -------------------------
 
-::
+.. code-block:: none
+   :emphasize-lines: 5-7
 
    (Pdb) b os.path.join
    Breakpoint 2 at /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py:68
@@ -52,27 +47,40 @@ Return to the scene of the crime
 
 XXX Post-Mortem Example
 
-Everybody ``print()``\ s
-========================
+.. rst-class:: dark segue
 
-``print`` is great, if you know what you're looking for
+Everybody Prints
+================
+
+.. only:: not slides
+
+   ``print`` is great, if you know what you're looking for
+
+.. rst-class:: dark segue
 
 PDB is Better
 =============
 
+.. rst-class:: build white
+
 * PDB lets you explore the state of a running program. Or a dead one.
 * PDB will run a program repeatedly as you debug it
-* Is extensible, so you can build the tools you need
+* It's extensible, so you can build the tools you need
 
-Invoking PDB
-============
+.. rst-class:: segue dark
+
+PDB 101
+=======
+
+.. rst-class:: content-columns-2 snap
 
 Explicit Trace Points
 ---------------------
 
 .. literalinclude:: /samples/fibonacci_trace.py
-   :linenos:
    :emphasize-lines: 13
+
+.. rst-class:: column-break-before
 
 ::
 
@@ -84,19 +92,22 @@ Explicit Trace Points
 PDB stops before the first statement in your program is executed,
 waiting for a command.
 
+.. rst-class:: content-columns-2 snap
 
 ``next``
 --------
 
 .. literalinclude:: /samples/fibonacci_trace.py
-   :linenos:
    :emphasize-lines: 14
+
+.. rst-class:: columns-break-before
 
 ::
 
+   $ python samples/fibonacci_trace.py 5
    > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
    -> print (fib(sys.argv[-1]))
-   (Pdb) n
+   (Pdb) next
    ValueError: "invalid literal for int() with base 10: 'samples/fibonacci_trace.py'"
    > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
    -> print (fib(sys.argv[-1]))
@@ -106,18 +117,22 @@ waiting for a command.
   makes)
 
 
+.. rst-class:: content-columns-2 snap
+
 ``step``
 --------
 
 .. literalinclude:: /samples/fibonacci_trace.py
-   :linenos:
    :emphasize-lines: 3
+
+.. rst-class:: columns-break-before
 
 ::
 
+   $ python samples/fibonacci_trace.py 5
    > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
    -> print (fib(sys.argv[-1]))
-   (Pdb) s
+   (Pdb) step
    --Call--
    > /Users/nathan/p/pdb/samples/fibonacci_trace.py(3)fib()
    -> def fib(n):
@@ -127,11 +142,15 @@ waiting for a command.
   function call)
 
 
-``cont``\ inue
---------------
+.. rst-class:: content-columns-2 snap
+
+
+``cont``
+--------
 
 .. literalinclude:: /samples/fibonacci_trace.py
-   :linenos:
+
+.. rst-class:: columns-break-before
 
 ::
 
@@ -149,10 +168,17 @@ waiting for a command.
        def fib(n):
    ValueError: invalid literal for int() with base 10: 'samples/fibonacci_trace.py'
 
-* ``cont`` will continue execution
+* ``cont`` will *continue* execution
+
+.. rst-class:: segue dark
+
+Executing Code Under PDB
+========================
 
 pdb.run
 -------
+
+* PDB will stop *before* executing the first statement
 
 ::
 
@@ -167,9 +193,8 @@ pdb.run
    -> if n <= 1:
    (Pdb)
 
-
-Running Under PDB
------------------
+Running PDB as a Script
+-----------------------
 
 ::
 
@@ -178,13 +203,18 @@ Running Under PDB
    -> import sys
    (Pdb)
 
+
+.. rst-class:: tip
+
 Asking for Help
 ===============
 
-The PDB prompt isn't the same as a Python prompt: you can do lots of
-Python-like things there, but it has its own rules. It looks confusing
-at first because it's optimized for speed once you know how it works.
-And you can always *ask for help*.
+.. only:: not slides
+
+   The PDB prompt isn't the same as a Python prompt: you can do lots
+   of Python-like things there, but it has its own rules. It looks
+   confusing at first because it's optimized for speed once you know
+   how it works. And you can always *ask for help*.
 
 ::
 
@@ -207,8 +237,14 @@ And you can always *ask for help*.
    ======================
    retval  rv
 
-Interacting with Locals
-=======================
+
+.. rst-class:: segue dark
+
+Debugging with PDB
+==================
+
+Our Buggy Program
+-----------------
 
 Consider a small web application that provides a `postfix notation`_
 calculator. You pass your arguments as path elements, and it applies
@@ -222,6 +258,8 @@ them to the stack and returns the result.
    The answer is 20
    curl http://localhost:8000/2/10/+/2/\*
    The answer is 24
+
+.. nextslide::
 
 It's cool, but not great with unexpected input.
 
@@ -240,6 +278,8 @@ It's cool, but not great with unexpected input.
        value = int(value_or_operator)
    ValueError: invalid literal for int() with base 10: 'abc'
 
+.. nextslide::
+
 We can run it under ``pdb`` to see what's actually happening when it
 blows up.
 
@@ -254,6 +294,8 @@ blows up.
 ::
 
    $ curl http://localhost:8000/2/abc/+
+
+.. nextslide::
 
 Now when we hit the bad URL with ``curl``, Python drops into PDB.
 
@@ -318,10 +360,43 @@ You can also give it additional parameters to control what lines are shown.
     32  	    def result(self):
     33
 
-.. admonition:: Python 3
+.. nextslide::
+   :classes: tip content-columns-2 content-smaller
 
-   Python 3.2 adds the ``ll`` (``longlist``) command, which lists *all*
-   the source code for the current function.
+.. rst-class:: span-columns
+
+Python 3.2 added the long list (``ll``) command, which lets you see
+the entire function.
+
+.. code-block:: none
+
+   (Pdb) list
+    22  	            value = self.OPERATORS[value_or_operator](
+    23  	                self.state.pop(),
+    24  	                self.state.pop(),
+    25  	            )
+    26  	        else:
+    27  ->	            value = int(value_or_operator)
+    28
+    29  	        self.state.append(value)
+    30
+    31  	    def result(self):
+    32
+
+.. code-block:: none
+
+   (Pdb) ll
+    19  	    def push(self, value_or_operator):
+    20
+    21  	        if value_or_operator in self.OPERATORS:
+    22  	            value = self.OPERATORS[value_or_operator](
+    23  	                self.state.pop(),
+    24  	                self.state.pop(),
+    25  	            )
+    26  	        else:
+    27  ->	            value = int(value_or_operator)
+    28
+    29  	        self.state.append(value)
 
 
 Pretty Print
@@ -383,6 +458,8 @@ Let's consider another example where our calculator isn't so hot.
    (Pdb)
 
 
+.. rst-class:: content-smaller
+
 Where am I?
 -----------
 
@@ -433,8 +510,11 @@ You can use the ``up`` command to move one frame up the stack.
    > /Users/nathan/p/pdb/samples/pfcalc.py(54)rpn_app()
    -> "The answer is %d" % (c.result(),),
 
-PDB shows that the current position is now the call to ``result``, and
-other PDB commands are now in that context.
+PDB shows that the current position is now the call to ``result``.
+
+.. nextslide::
+
+Other PDB commands operate in the context of the current position.
 
 ::
 
@@ -451,9 +531,6 @@ other PDB commands are now in that context.
     58  	httpd = make_server('', 8000, rpn_app,
     59  	                    server_class=CalculatorServer,
    (Pdb)
-
-
-XXX ``down command``
 
 
 Following Execution
@@ -481,33 +558,44 @@ You can also jump over parts of the code using the cunningly named
 Post-Mortem Debugging
 =====================
 
-Executing your program using the ``pdb`` module uses the *post-mortem*
-debugger. The post-mortem debugger uses ``sys.last_exception`` to
-figure out where to start debugging.
+.. only:: not slides
 
-Our server starts with the following lines::
+   Executing your program using the ``pdb`` module uses the *post-mortem*
+   debugger. The post-mortem debugger uses ``sys.last_exception`` to
+   figure out where to start debugging.
 
-  httpd = make_server('', 8000, rpn_app,
-                      server_class=CalculatorServer,
-                      handler_class=CalculatorWSGIHandler,
-  )
-  print "Serving on port 8000..."
-  httpd.serve_forever()
+Our server starts with the following lines:
 
-Using post-mortem debugging is the same as modifying that to something
-like::
+.. code-block:: python
 
-  try:
-    httpd = make_server('', 8000, rpn_app,
-                        server_class=CalculatorServer,
-                        handler_class=CalculatorWSGIHandler,
-    )
-    print "Serving on port 8000..."
-    httpd.serve_forever()
-  except:
-    import pdb
-    pdb.post_mortem()  # XXX
+   httpd = make_server('', 8000, rpn_app,
+                       server_class=CalculatorServer,
+                       handler_class=CalculatorWSGIHandler,
+   )
+   print "Serving on port 8000..."
+   httpd.serve_forever()
 
+.. nextslide::
+
+.. only:: not slides
+
+   Using post-mortem debugging is the same as modifying that to something
+   like:
+
+.. code-block:: python
+
+   try:
+     httpd = make_server('', 8000, rpn_app,
+                         server_class=CalculatorServer,
+                         handler_class=CalculatorWSGIHandler,
+     )
+     print "Serving on port 8000..."
+     httpd.serve_forever()
+   except:
+     import pdb
+     pdb.post_mortem()  # debug the exception being handled
+
+.. nextslide::
 
 So what's the difference between that and using ``set_trace``?
 
@@ -570,16 +658,16 @@ want to enter the debugger when ``rpn_app`` is called:
 
 We can do this with a breakpoint.
 
-.. code-sample:: bash
+.. code-block:: bash
    :emphasize-lines: 4
 
-  $ python -m pdb pfcalc.py
-  > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
-  -> from wsgiref.simple_server import make_server
-  (Pdb) break pfcalc.rpn_app
-  Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:41
-  (Pdb) cont
-  Serving on port 8000...
+   $ python -m pdb pfcalc.py
+   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   -> from wsgiref.simple_server import make_server
+   (Pdb) break pfcalc.rpn_app
+   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:41
+   (Pdb) cont
+   Serving on port 8000...
 
 The ``break`` command takes an argument which tells it where to break.
 In this case it's a ``module.callable`` dotted path. It prints out
@@ -590,18 +678,18 @@ example).
 
 You can also give it a filename and a line number.
 
-.. code-sample:: bash
+.. code-block:: bash
    :emphasize-lines: 4
 
-  $ python -m pdb pfcalc.py
-  > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
-  -> from wsgiref.simple_server import make_server
-  (Pdb) break pfcalc.py:41
-  Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:41
-  (Pdb) cont
-  Serving on port 8000...
+   $ python -m pdb pfcalc.py
+   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   -> from wsgiref.simple_server import make_server
+   (Pdb) break pfcalc.py:41
+   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:41
+   (Pdb) cont
+   Serving on port 8000...
 
-Note that we then exit the debugger by telling it to ``cont``inue.
+Note that we then exit the debugger by telling it to ``cont``\ inue.
 
 If we make a request to our application, we'll see it drop into PDB.
 

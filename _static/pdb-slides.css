@@ -1,0 +1,58 @@
+h1 {
+  font-size: 45px;
+  line-height: 45px;
+  letter-spacing: -2px;
+  color: #515151;
+}
+
+.segue h1 {
+  color: #e6e6e6;
+  font-size: 60px;
+}
+
+a.headerlink {
+    visibility: hidden;
+}
+
+h1:hover > a.headerlink,
+h2:hover > a.headerlink,
+h3:hover > a.headerlink,
+h4:hover > a.headerlink,
+h5:hover > a.headerlink,
+h6:hover > a.headerlink,
+dt:hover > a.headerlink {
+    visibility: visible;
+}
+
+.column-break-before {
+    break-before: column;
+    -webkit-column-break-before: always;
+}
+
+slides > slide {
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+slides > slide.snap {
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+
+div.highlight > pre {
+  -webkit-column-break-inside: avoid;
+  break-inside: avoid;
+}
+
+slide.tip {
+    background: #f6c000;
+}
+
+.span-columns {
+    column-span: all;
+    -webkit-column-span: all;
+}
