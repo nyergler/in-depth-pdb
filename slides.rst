@@ -995,11 +995,23 @@ See the `command reference`_ for details.
 .pdbrc
 ------
 
-When PDB starts it looks for a ``.pdbrc`` file in the user's home
-directory and the current directory (if both are found, the current
-directory file is loaded after the one in the home directory). The
-contents of the ``.pdbrc`` is executed as if it'd been typed into the
-PDB prompt.
+.. only:: slides
+
+   * ``.pdbrc`` will be loaded from your home directory *and* current
+     directory
+   * Executed line by line in PDB
+   * Define aliases, common breakpoints, etc at startup
+   * Comments can be included with ``#``
+
+.. only:: not slides
+
+   When PDB starts it looks for a ``.pdbrc`` file in the user's home
+   directory and the current directory (if both are found, the current
+   directory file is loaded after the one in the home directory). The
+   contents of the ``.pdbrc`` is executed as if it'd been typed into the
+   PDB prompt.
+
+.. literalinclude:: pdbrc
 
 
 Other Tools
