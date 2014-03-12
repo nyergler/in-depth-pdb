@@ -890,13 +890,7 @@ trigger the breakpoint.
   (Pdb) c
   [08/Jan/2013 22:36:13] "POST /hello/world HTTP/1.1" 200 59
 
-.. only:: not slides
-
-   Modifying Variables
-   -------------------
-
-   XXX
-
+.. rst-class:: segue dark
 
 Extending PDB
 =============
@@ -908,10 +902,17 @@ PDB supports defining aliases for actions you take frequently.
 
 ::
 
-  alias printdict for key, value in %1.items(): print "%s: %s" % (key, value)
+  alias d pp dir(%1)
 
-Will create a ``printdict`` command. ``%1`` will replaced by the first
-parameter to the command.
+::
+
+  alias printdict for key, value in %1.items(): print "%s: %s" % (key, value)
+  alias pd printdict
+
+.. only:: not slides
+
+   Will create a ``printdict`` command. ``%1`` will replaced by the first
+   parameter to the command.
 
 Combining Aliases
 -----------------
@@ -999,9 +1000,6 @@ directory and the current directory (if both are found, the current
 directory file is loaded after the one in the home directory). The
 contents of the ``.pdbrc`` is executed as if it'd been typed into the
 PDB prompt.
-
-There are two PDB commands that make this particularly powerful.
-
 
 
 Other Tools
