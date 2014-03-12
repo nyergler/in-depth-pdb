@@ -660,28 +660,38 @@ difference will be obvious.
    execution and look around, but not when you're catching an exception.
 
 
+.. rst-class:: segue dark
+
 Breakpoints
 ===========
 
-So far we've primarily looked at entering the debugger explicitly
-(``set_trace``) and invoking the post-mortem debugger on exception
-(``python -m pdb``). Of course it'd be nice to start the debugger
-*before* we run into trouble.
+.. only:: not slides
 
-**PDB breakpoints let you enter the debugger at a specific point
-without modifying the source code.**
+   So far we've primarily looked at entering the debugger explicitly
+   (``set_trace``) and invoking the post-mortem debugger on exception
+   (``python -m pdb``). Of course it'd be nice to start the debugger
+   *before* we run into trouble.
+
+   **PDB breakpoints let you enter the debugger at a specific point
+   without modifying the source code.**
+
+.. rst-class:: content-columns-2
 
 Setting Breakpoints
 -------------------
 
-A breakpoint is set using the ``break`` command. For example, if we
-want to inspect the path handling portion of our calculator, we might
-want to enter the debugger when ``rpn_app`` is called:
+.. only:: not slides
+
+   A breakpoint is set using the ``break`` command. For example, if we
+   want to inspect the path handling portion of our calculator, we might
+   want to enter the debugger when ``rpn_app`` is called:
 
 .. literalinclude:: /samples/pfcalc.py
    :pyobject: rpn_app
 
-We can do this with a breakpoint.
+.. only:: not slides
+
+   We can do this with a breakpoint.
 
 .. code-block:: bash
    :emphasize-lines: 4
@@ -694,14 +704,13 @@ We can do this with a breakpoint.
    (Pdb) cont
    Serving on port 8000...
 
-The ``break`` command takes an argument which tells it where to break.
-In this case it's a ``module.callable`` dotted path. It prints out
-where the breakpoint was set, and the breakpoint number (**1** in this
-example).
+.. rst-class:: content-columns-2
 
-.. possible slide here just showing the command?
+Setting Breakpoints
+-------------------
 
-You can also give it a filename and a line number.
+.. literalinclude:: /samples/pfcalc.py
+   :pyobject: rpn_app
 
 .. code-block:: bash
    :emphasize-lines: 4
@@ -714,7 +723,28 @@ You can also give it a filename and a line number.
    (Pdb) cont
    Serving on port 8000...
 
-Note that we then exit the debugger by telling it to ``cont``\ inue.
+.. rst-class:: span-columns
+
+   You can also give it a filename and a line number.
+
+   Note that we then exit the debugger by telling it to ``cont``\ inue.
+
+.. nextslide::
+   :classes: content-flexbox content-vcenter content-big-example
+
+.. only:: not slides
+
+   The ``break`` command takes an argument which tells it where to break.
+   In this case it's a ``module.callable`` dotted path. It prints out
+   where the breakpoint was set, and the breakpoint number (**1** in this
+   example).
+
+::
+
+   b(reak) ([file:]lineno | function) [, condition]
+
+
+.. nextslide::
 
 If we make a request to our application, we'll see it drop into PDB.
 
@@ -731,6 +761,8 @@ If we make a request to our application, we'll see it drop into PDB.
    (Pdb) !environ['PATH_INFO']
    '/2/3/+'
 
+.. nextslide::
+
 Issuing the ``break`` command without any arguments will report on the
 defined breakpoints::
 
@@ -738,25 +770,24 @@ defined breakpoints::
   Num Type         Disp Enb   Where
   1   breakpoint   keep yes   at /home/nathan/p/pdb/samples/pfcalc.py:41
           breakpoint already hit 1 times
+  (Pdb) cont
+  127.0.0.1 - - [09/Mar/2014 17:18:42] "GET /2/3/+ HTTP/1.1" 200 15
 
 
+.. only:: not slides
 
+   Note that breakpoints are *thread specific*. This means that when
+   using the Django ``runserver`` command, you need to disable the
+   threaded features. ``--nothreading --noreload`` disables the reload
+   watcher and threading.
 
-   (Pdb) cont
-   127.0.0.1 - - [09/Mar/2014 17:18:42] "GET /2/3/+ HTTP/1.1" 200 15
+   .. note::
 
+      A variant of the ``break`` command, ``tbreak``, takes the same
+      arguments, but creates a temporary breakpoint, which is cleared
+      after the first hit.
 
-Note that breakpoints are *thread specific*. This means that when
-using the Django ``runserver`` command, you need to disable the
-threaded features. ``--nothreading --noreload`` disables the reload
-watcher and threading.
-
-.. note::
-
-   A variant of the ``break`` command, ``tbreak``, takes the same
-   arguments, but creates a temporary breakpoint, which is cleared
-   after the first hit.
-
+.. nextslide::
 
 If you press Ctrl-C, the program will restart since we're running
 under the PDB module. The breakpoint is still active.
@@ -782,14 +813,29 @@ behavior with the following commands:
 * ``clear [bpnum]`` clears the breakpoints specified. If no breakpoints are
   specified, prompt to clear all breakpoints.
 
+.. rst-class:: content-flexbox content-vcenter content-big-example
+
 Breakpoint Conditions
 ---------------------
 
-You can also specify a condition for a breakpoint. When the breakpoint
-is encountered, the condition is evaluated. If it evaluates True, you
-enter the debugger. A condition can be specified as the final argument
-to the ``break`` command. It can also be set (or changed) later with
-the ``condition`` command.
+.. only:: not slides
+
+   You may have noticed that the ``break`` command has this optional
+   ``condition`` parameter at the end.
+
+::
+
+   b(reak) ([file:]lineno | function) [, condition]
+
+.. only:: not slides
+
+   You can also specify a condition for a breakpoint. When the breakpoint
+   is encountered, the condition is evaluated. If it evaluates True, you
+   enter the debugger. A condition can be specified as the final argument
+   to the ``break`` command. It can also be set (or changed) later with
+   the ``condition`` command.
+
+.. nextslide::
 
 For example, to set a breakpoint for POST requests in a Django
 project::
@@ -806,6 +852,8 @@ project::
 
 The condition follows the module and line number, separated by a
 comma, and is evaluated in the context of the breakpoint.
+
+.. nextslide::
 
 If you make a POST request using ``curl`` after setting the
 breakpoint, the breakpoint will trigger. Making a GET request will not
@@ -842,11 +890,12 @@ trigger the breakpoint.
   (Pdb) c
   [08/Jan/2013 22:36:13] "POST /hello/world HTTP/1.1" 200 59
 
+.. only:: not slides
 
-Modifying Variables
--------------------
+   Modifying Variables
+   -------------------
 
-XXX
+   XXX
 
 
 Extending PDB

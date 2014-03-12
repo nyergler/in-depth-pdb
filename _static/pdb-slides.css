@@ -56,3 +56,12 @@ slide.tip {
     column-span: all;
     -webkit-column-span: all;
 }
+
+.highlight-code slide.current span.hll {
+  opacity: 1;
+}
+
+
+.big-example pre {
+    font-size: 125%;
+}
