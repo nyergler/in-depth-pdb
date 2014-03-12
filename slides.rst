@@ -45,7 +45,30 @@ Look around Python's code
 Return to the scene of the crime
 --------------------------------
 
-XXX Post-Mortem Example
+.. code-block:: none
+
+   >>> s = make_server('', 8000, pfcalc.rpn_app)
+   Traceback (most recent call last):
+     File "<stdin>", line 1, in <module>
+     File "/usr/lib/python2.7/wsgiref/simple_server.py", line 144, in make_server
+       server = server_class((host, port), handler_class)
+     File "/usr/lib/python2.7/SocketServer.py", line 419, in __init__
+       self.server_bind()
+     File "/usr/lib/python2.7/wsgiref/simple_server.py", line 48, in server_bind
+       HTTPServer.server_bind(self)
+     File "/usr/lib/python2.7/BaseHTTPServer.py", line 108, in server_bind
+       SocketServer.TCPServer.server_bind(self)
+     File "/usr/lib/python2.7/SocketServer.py", line 430, in server_bind
+       self.socket.bind(self.server_address)
+     File "/usr/lib/python2.7/socket.py", line 224, in meth
+       return getattr(self._sock,name)(*args)
+   socket.error: [Errno 98] Address already in use
+   >>> import pdb
+   >>> pdb.pm()
+   > /usr/lib/python2.7/socket.py(224)meth()
+   -> return getattr(self._sock,name)(*args)
+   (Pdb)
+
 
 .. rst-class:: dark segue
 
@@ -422,7 +445,11 @@ You can also evaluate expressions using the ``!`` command.
 
 ::
 
-   XXX
+   (Pdb) !int(value_or_operator)
+   *** ValueError: invalid literal for int() with base 10: 'abc'
+   (Pdb) !len(self.state)
+   1
+
 
 .. admonition:: ``interact``
 
@@ -431,9 +458,20 @@ You can also evaluate expressions using the ``!`` command.
    position. This makes it easier to evaluate expressions and explore
    the current position in the code.
 
+   ::
+
+      (Pdb) interact
+      *interactive*
+      >>> locals().keys()
+      dict_keys(['make_server', 'self', 'httpd', '__name__', '__builtins__', 'CalculatorWSGIHandler', '__file__', 'value_or_operator', 'CalculatorServer', 'Calculator', 'rpn_app'])
+
+
+.. rst-class:: segue dark
 
 Navigating Execution
 ====================
+
+.. nextslide::
 
 Let's consider another example where our calculator isn't so hot.
 
@@ -533,30 +571,16 @@ Other PDB commands operate in the context of the current position.
    (Pdb)
 
 
-Following Execution
--------------------
-
-Review ``step``, ``next``
-
-``return``
-
-``until``
-
-Modifying the Flow
-------------------
-
-You can also jump over parts of the code using the cunningly named
-``jump`` command.
-
-.. ifnotslides::
-   The `command reference`_ points out that "not all jumps are allowed —
-   for instance it is not possible to jump into the middle of a for loop
-   or out of a finally clause." I don't find many uses for jumps, but
-   your mileage may vary.
-
+.. rst-class:: segue dark
 
 Post-Mortem Debugging
 =====================
+
+.. nextslide::
+
+We've been running the server using the PDB module::
+
+  $ python -m pdb pfcalc.py
 
 .. only:: not slides
 
@@ -577,10 +601,8 @@ Our server starts with the following lines:
 
 .. nextslide::
 
-.. only:: not slides
-
-   Using post-mortem debugging is the same as modifying that to something
-   like:
+Using post-mortem debugging is the same as modifying that to something
+like:
 
 .. code-block:: python
 
@@ -597,7 +619,8 @@ Our server starts with the following lines:
 
 .. nextslide::
 
-So what's the difference between that and using ``set_trace``?
+You can imagine writing this using an explicit ``set_trace()``
+instead.
 
 ::
 
@@ -612,13 +635,13 @@ So what's the difference between that and using ``set_trace``?
     import pdb
     pdb.set_trace()
 
+.. nextslide::
 
 If we run this version of the server and trigger an error, the
 difference will be obvious.
 
 ::
 
-   \
    $ curl http://localhost:8000/2/3/+/5
 
 ::
@@ -629,10 +652,12 @@ difference will be obvious.
    -> pdb.set_trace()
    (Pdb)
 
-As you can see, when ``set_trace`` enters the debugger, you don't have
-any of the exception context. The error has already happened, and
-you're too late. ``set_trace`` is useful when you want to pause
-execution and look around, but not when you're catching an exception.
+.. only:: not slides
+
+   As you can see, when ``set_trace`` enters the debugger, you don't have
+   any of the exception context. The error has already happened, and
+   you're too late. ``set_trace`` is useful when you want to pause
+   execution and look around, but not when you're catching an exception.
 
 
 Breakpoints
