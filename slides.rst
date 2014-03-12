@@ -1014,25 +1014,27 @@ See the `command reference`_ for details.
 .. literalinclude:: pdbrc
 
 
-Other Tools
-===========
+See Also
+========
 
-* ipdb_ is a drop-in replacement for PDB that provides syntax
-  highlighting, tab completion, and better introspection.
-* rdb_
-* pudb_
+* ipdb_: Drop-in replacement for PDB that provides syntax
+  highlighting and tab completion
+* rdb_: PDB over a socket
+* pudb_: Full screen, console debugger
+* `pdb++`_: Overrides PDB with some advanced functionality like watches
 * ``pdbtrack`` is included with modern distributions of
   `python-mode`_, and allows Emacs to open files as they're debugged
-  by PDB. Recent versions add support for `filename mapping`_ which is
+  by PDB.
+
+.. only:: not slides
+
+  Recent versions add support for `filename mapping`_ which is
   useful when debugging in a SSH session (ie, Eventbrite's
   vagrant-based setup).
 
-Further Reading
-===============
-
-* `Tracing Python Code
-  <http://www.dalkescientific.com/writings/diary/archive/2005/04/20/tracing_python_code.html>`_
-* `Watchpoints in Python <http://sourceforge.net/blog/watchpoints-in-python/>`_
+  * `Tracing Python Code
+    <http://www.dalkescientific.com/writings/diary/archive/2005/04/20/tracing_python_code.html>`_
+  * `Watchpoints in Python <http://sourceforge.net/blog/watchpoints-in-python/>`_
 
 .. _PDB: http://docs.python.org/2/library/pdb.html
 .. _`sys.settrace`:  http://docs.python.org/2/library/sys.html#sys.settrace
@@ -1046,3 +1048,4 @@ Further Reading
 .. _`filename mapping`: http://yergler.net/blog/2012/06/07/mapping-file-paths-for-pdbtrack/
 .. _pudb: https://pypi.python.org/pypi/pudb
 .. _`postfix notation`: http://en.wikipedia.org/wiki/Postfix_notation
+.. _`pdb++`: https://pypi.python.org/pypi/pdbpp/
