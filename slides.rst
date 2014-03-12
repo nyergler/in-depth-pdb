@@ -837,58 +837,77 @@ Breakpoint Conditions
 
 .. nextslide::
 
-For example, to set a breakpoint for POST requests in a Django
-project::
+.. only:: not slides
 
-  $ ../bin/python -m pdb ../bin/django runserver --settings=pdbdemo.settings --nothreading --noreload
-  > /home/nathan/p/pdb/bin/django(3)<module>()
-  -> import sys
-  (Pdb) break django/core/handlers/base.py:82, request.method.lower() == 'post'
-  Breakpoint 1 at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:82
-  (Pdb) break
-  Num Type         Disp Enb   Where
-  1   breakpoint   keep yes   at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:82
-          stop only if request.method.lower() == 'post'
+   Our calculator expects that it will receive GET requests, and we
+   can place a breakpoint that only fires when it gets something else.
 
-The condition follows the module and line number, separated by a
-comma, and is evaluated in the context of the breakpoint.
+.. code-block:: none
+   :emphasize-lines: 4
+
+   $ python -m pdb pfcalc.py
+   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   -> from wsgiref.simple_server import make_server
+   (Pdb) break pfcalc.rpn_app, environ['REQUEST_METHOD'] != 'GET'
+   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:40
+   (Pdb)
 
 .. nextslide::
 
-If you make a POST request using ``curl`` after setting the
-breakpoint, the breakpoint will trigger. Making a GET request will not
-trigger the breakpoint.
+.. code-block:: none
+   :emphasize-lines: 6-9
 
-::
+   $ python -m pdb pfcalc.py
+   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   -> from wsgiref.simple_server import make_server
+   (Pdb) break pfcalc.rpn_app, environ['REQUEST_METHOD'] != 'GET'
+   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:40
+   (Pdb) break
+   Num Type         Disp Enb   Where
+   1   breakpoint   keep yes   at /home/nathan/p/pdb/samples/pfcalc.py:40
+           stop only if environ['REQUEST_METHOD'] != 'GET'
+   (Pdb) cont
+   Serving on port 8000...
 
-  (Pdb) c
-  Validating models...
+.. nextslide::
+   :classes: content-columns-2
 
-  0 errors found
-  Django version 1.4.3, using settings 'pdbdemo.settings'
-  Development server is running at http://127.0.0.1:8000/
-  Quit the server with CONTROL-C.
-  > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(82)get_response()
-  -> urlconf = settings.ROOT_URLCONF
-  (Pdb) l
-   77  	        try:
-   78  	            # Setup default url resolver for this thread, this code is outside
-   79  	            # the try/except so we don't get a spurious "unbound local
-   80  	            # variable" exception in the event an exception is raised before
-   81  	            # resolver is set
-   82 B->	            urlconf = settings.ROOT_URLCONF
-   83  	            urlresolvers.set_urlconf(urlconf)
-   84  	            resolver = urlresolvers.RegexURLResolver(r'^/', urlconf)
-   85  	            try:
-   86  	                response = None
-   87  	                # Apply request middleware
-  (Pdb) n
-  > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(83)get_response()
-  -> urlresolvers.set_urlconf(urlconf)
-  (Pdb) !request.method
-  'POST'
-  (Pdb) c
-  [08/Jan/2013 22:36:13] "POST /hello/world HTTP/1.1" 200 59
+.. code-block:: none
+
+   $ python -m pdb pfcalc.py
+   ...
+   Serving on port 8000...
+   127.0.0.1 - - [12/Mar/2014 12:52:24] "GET /2/3/* HTTP/1.1" 200 15
+   127.0.0.1 - - [12/Mar/2014 12:52:30] "GET /2/3/+ HTTP/1.1" 200 15
+   > /home/nathan/p/pdb/samples/pfcalc.py(42)rpn_app()
+   -> c = Calculator()
+   (Pdb) environ['REQUEST_METHOD']
+   'POST'
+   (Pdb) cont
+   127.0.0.1 - - [12/Mar/2014 12:52:54] "POST /2/3/+ HTTP/1.1" 200 15
+
+.. code-block:: bash
+
+   $ curl http://localhost:8000/2/3/\*
+   The answer is 6
+   $ curl http://localhost:8000/2/3/+
+   The answer is 5
+   $ curl http://localhost:8000/2/3/+ -d foo
+   The answer is 5
+
+..
+   .. nextslide::
+
+     $ ../bin/python -m pdb ../bin/django runserver --settings=pdbdemo.settings --nothreading --noreload
+     > /home/nathan/p/pdb/bin/django(3)<module>()
+     -> import sys
+     (Pdb) break django/core/handlers/base.py:82, request.method.lower() == 'post'
+     Breakpoint 1 at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:82
+     (Pdb) break
+     Num Type         Disp Enb   Where
+     1   breakpoint   keep yes   at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:82
+             stop only if request.method.lower() == 'post'
+
 
 .. rst-class:: segue dark
 
