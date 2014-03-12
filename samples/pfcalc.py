@@ -10,7 +10,6 @@ class Calculator(object):
     OPERATORS = {
         '+': int.__add__,
         '*': int.__mul__,
-        '/': int.__div__,
     }
 
     def __init__(self):
@@ -60,5 +59,5 @@ if __name__ == '__main__':
                         server_class=CalculatorServer,
                         handler_class=CalculatorWSGIHandler,
     )
-    print "Serving on port 8000..."
+    print ("Serving on port 8000...")
     httpd.serve_forever()
