@@ -106,7 +106,7 @@ slide_theme_options = {
             'name': 'Nathan Yergler',
             'twitter': '@nyergler',
             'www': 'http://yergler.net',
-            'github': 'http://github.com/nyergler'
+            'github': 'http://github.com/nyergler/in-depth-pdb'
         },
     ],
 }
