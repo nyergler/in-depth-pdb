@@ -900,9 +900,14 @@ Aliases
 
 PDB supports defining aliases for actions you take frequently.
 
+
 ::
 
   alias d pp dir(%1)
+
+::
+
+  alias loc locals().keys()
 
 ::
 
@@ -924,73 +929,154 @@ more powerful commands.
 
   alias cookies printdict getattr(locals().get('request', %1), 'COOKIES')
 
-Breakpoint Command
-------------------
+Breakpoint Commands
+-------------------
 
-PDB also allows you to specify commands to execute when a breakpoint
-is triggered. This allows you to automatically execute any PDB command
-when a breakpoint is encountered, including things like changing the
-ignore count, disabling or enabling other breakpoints, or printing the
-value of a variable.
+* PDB can execute debugger commands when a breakpoint is encountered
+* These commands can be anything you normally enter at the ``(Pdb)``
+  prompt
+* The command list ends with either the ``end`` command, or any
+  command that resumes execution (``step``, ``next``, ``cont``)
 
-Consider the situation where it'd be helpful to display the value of a
-variable when a request comes in: you don't necessarily want to set a
-breakpoint, you'd just like to see it in the console as you're
-working. You can do this using breakpoint commands.
+.. nextslide::
 
-First, start the program under PDB and set the breakpoint like you
-normally would::
+.. code-block:: none
+   :emphasize-lines: 4
 
-  $ ../bin/python -m pdb ../bin/django runserver --settings=pdbdemo.settings --nothreading --noreload
-  > /home/nathan/p/pdb/bin/django(3)<module>()
-  -> import sys
-  (Pdb) break django/core/handlers/base.py:75
-  Breakpoint 1 at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
-  (Pdb) break
-  Num Type         Disp Enb   Where
-  1   breakpoint   keep yes   at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
+   $ python -m pdb pfcalc.py
+   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   -> from wsgiref.simple_server import make_server
+   (Pdb) break pfcalc.py:21
+   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:21
 
-Now set the commands to execute on breakpoint 1::
+.. nextslide::
 
-  (Pdb) commands 1
-  (com) print request.method
-  (com) cont
-  (Pdb) break
-  Num Type         Disp Enb   Where
-  1   breakpoint   keep yes   at
-  /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
+.. code-block:: none
+   :emphasize-lines: 6,9
 
-You can see the prompt changes from ``(Pdb)`` to ``(com)`` when
-entering commands. The command entry is terminated when you type
-``end`` or any PDB command that resumes execution (``cont`` in this case).
+   $ python -m pdb pfcalc.py
+   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   -> from wsgiref.simple_server import make_server
+   (Pdb) break pfcalc.py:21
+   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:21
+   (Pdb) commands 1
+   (com) pp self.state
+   (com) pp value_or_operator
+   (com) cont
+   (Pdb)
 
-If we continue execution and make a couple requests, we'll see the
-``print`` command in action::
+.. nextslide::
 
-  (Pdb) cont
-  Validating models...
+.. code-block:: none
+   :emphasize-lines: 10
 
-  0 errors found
-  Django version 1.4.3, using settings 'pdbdemo.settings'
-  Development server is running at http://127.0.0.1:8000/
-  Quit the server with CONTROL-C.
-  GET
-  > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(75)get_response()
-  -> from django.conf import settings
-  [09/Jan/2013 10:45:50] "GET /hello/world HTTP/1.1" 200 59
-  GET
-  > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(75)get_response()
-  -> from django.conf import settings
-  [09/Jan/2013 10:45:55] "GET /hello/world HTTP/1.1" 200 59
-  POST
-  > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(75)get_response()
-  -> from django.conf import settings
-  [09/Jan/2013 10:46:18] "POST /hello/world HTTP/1.1" 200 59
+   $ python -m pdb pfcalc.py
+   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   -> from wsgiref.simple_server import make_server
+   (Pdb) break pfcalc.py:21
+   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:21
+   (Pdb) commands 1
+   (com) pp self.state
+   (com) pp value_or_operator
+   (com) cont
+   (Pdb) cont
+   Serving on port 8000...
 
-Note that the normal breakpoint message is still printed unless we use
-the ``silent`` command in our list of breakpoint commands.
+.. nextslide::
+   :classes: content-columns-2
 
-See the `command reference`_ for details.
+.. code-block:: none
+   :emphasize-lines: 4-5,8-9,12-13
+
+   $ python -m pdb pfcalc.py
+   ...
+   Serving on port 8000...
+   []
+   '2'
+   > /home/nathan/p/pdb/samples/pfcalc.py(21)push()
+   -> if value_or_operator in self.OPERATORS:
+   [2]
+   '3'
+   > /home/nathan/p/pdb/samples/pfcalc.py(21)push()
+   -> if value_or_operator in self.OPERATORS:
+   [2, 3]
+   '*'
+   > /home/nathan/p/pdb/samples/pfcalc.py(21)push()
+   -> if value_or_operator in self.OPERATORS:
+   127.0.0.1 - - [12/Mar/2014 12:38:42] "GET /2/3/* HTTP/1.1" 200 15
+
+.. code-block:: bash
+
+   $ curl http://localhost:8000/2/3/\*
+   The answer is 6
+
+.. only:: not slides
+
+   PDB also allows you to specify commands to execute when a breakpoint
+   is triggered. This allows you to automatically execute any PDB command
+   when a breakpoint is encountered, including things like changing the
+   ignore count, disabling or enabling other breakpoints, or printing the
+   value of a variable.
+
+   Consider the situation where it'd be helpful to display the value of a
+   variable when a request comes in: you don't necessarily want to set a
+   breakpoint, you'd just like to see it in the console as you're
+   working. You can do this using breakpoint commands.
+
+   First, start the program under PDB and set the breakpoint like you
+   normally would::
+
+     $ ../bin/python -m pdb ../bin/django runserver --settings=pdbdemo.settings --nothreading --noreload
+     > /home/nathan/p/pdb/bin/django(3)<module>()
+     -> import sys
+     (Pdb) break django/core/handlers/base.py:75
+     Breakpoint 1 at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
+     (Pdb) break
+     Num Type         Disp Enb   Where
+     1   breakpoint   keep yes   at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
+
+   Now set the commands to execute on breakpoint 1::
+
+     (Pdb) commands 1
+     (com) print request.method
+     (com) cont
+     (Pdb) break
+     Num Type         Disp Enb   Where
+     1   breakpoint   keep yes   at
+     /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
+
+   You can see the prompt changes from ``(Pdb)`` to ``(com)`` when
+   entering commands. The command entry is terminated when you type
+   ``end`` or any PDB command that resumes execution (``cont`` in this case).
+
+   If we continue execution and make a couple requests, we'll see the
+   ``print`` command in action::
+
+     (Pdb) cont
+     Validating models...
+
+     0 errors found
+     Django version 1.4.3, using settings 'pdbdemo.settings'
+     Development server is running at http://127.0.0.1:8000/
+     Quit the server with CONTROL-C.
+     GET
+     > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(75)get_response()
+     -> from django.conf import settings
+     [09/Jan/2013 10:45:50] "GET /hello/world HTTP/1.1" 200 59
+     GET
+     > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(75)get_response()
+     -> from django.conf import settings
+     [09/Jan/2013 10:45:55] "GET /hello/world HTTP/1.1" 200 59
+     POST
+     > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(75)get_response()
+     -> from django.conf import settings
+     [09/Jan/2013 10:46:18] "POST /hello/world HTTP/1.1" 200 59
+
+   Note that the normal breakpoint message is still printed unless we use
+   the ``silent`` command in our list of breakpoint commands.
+
+
+   See the `command reference`_ for details.
 
 .pdbrc
 ------
