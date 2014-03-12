@@ -1117,7 +1117,17 @@ Breakpoint Commands
    PDB prompt.
 
 .. literalinclude:: pdbrc
+   :lines: 1-6
 
+step-watch
+----------
+
+Python expressions + PDB commands
+
+.. literalinclude:: pdbrc
+   :lines: 7-
+
+Credit: http://stackoverflow.com/questions/7668979/how-do-you-watch-a-variable-in-pdb
 
 See Also
 ========
