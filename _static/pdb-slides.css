@@ -61,7 +61,23 @@ slide.tip {
   opacity: 1;
 }
 
-
 .big-example pre {
     font-size: 125%;
+}
+
+article.columns-2 div:first-of-type {
+    display: inline-block;
+}
+
+div.highlight {
+
+    background: none;
+
+}
+
+div.highlight > pre {
+
+    left: 0px;
+    padding-left: 0;
+
 }
