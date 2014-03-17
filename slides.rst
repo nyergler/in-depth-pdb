@@ -5,10 +5,16 @@
 PDB: The Python Debugger
 ========================
 
-Look around your code
----------------------
+Look around running code
+------------------------
 
-XXX Example of inspecting locals
+.. code-block:: none
+   :emphasize-lines: 3-4
+
+   > /Users/nathan/p/pdb/samples/pfcalc.py(28)push()
+   -> value = int(value_or_operator)
+   (Pdb) p value_or_operator
+   'abc'
 
 .. rst-class:: content-smaller
 
@@ -41,6 +47,8 @@ Look around Python's code
    (Pdb) !p
    ('nathan',)
    (Pdb)
+
+.. rst-class:: content-smaller
 
 Return to the scene of the crime
 --------------------------------
@@ -275,11 +283,11 @@ them to the stack and returns the result.
 
 ::
 
-   $ curl http://localhost:8000/2/1/+
+   $ curl "http://localhost:8000/2/1/+"
    The answer is 3
-   $ curl http://localhost:8000/2/10/\*
+   $ curl "http://localhost:8000/2/10/*"
    The answer is 20
-   curl http://localhost:8000/2/10/+/2/\*
+   curl "http://localhost:8000/2/10/+/2/*"
    The answer is 24
 
 .. nextslide::
@@ -366,8 +374,6 @@ function using ``args``.
 Listing Code
 ------------
 
-You can also give it additional parameters to control what lines are shown.
-
 ::
 
    (Pdb) list
@@ -383,6 +389,8 @@ You can also give it additional parameters to control what lines are shown.
     32  	    def result(self):
     33
 
+You can also give it additional parameters to control what lines are shown.
+
 .. nextslide::
    :classes: tip content-columns-2 content-smaller
 
@@ -394,6 +402,9 @@ the entire function.
 .. code-block:: none
 
    (Pdb) list
+
+
+
     22  	            value = self.OPERATORS[value_or_operator](
     23  	                self.state.pop(),
     24  	                self.state.pop(),
@@ -451,19 +462,26 @@ You can also evaluate expressions using the ``!`` command.
    1
 
 
-.. admonition:: ``interact``
+.. only:: not slides
 
-   New in Python 3.2, the ``interact`` command gives you an
-   interactive prompt with the same locals and globals as the current
-   position. This makes it easier to evaluate expressions and explore
-   the current position in the code.
+   .. admonition:: ``interact``
 
-   ::
+      New in Python 3.2, the ``interact`` command gives you an
+      interactive prompt with the same locals and globals as the current
+      position. This makes it easier to evaluate expressions and explore
+      the current position in the code.
 
-      (Pdb) interact
-      *interactive*
-      >>> locals().keys()
-      dict_keys(['make_server', 'self', 'httpd', '__name__', '__builtins__', 'CalculatorWSGIHandler', '__file__', 'value_or_operator', 'CalculatorServer', 'Calculator', 'rpn_app'])
+.. only:: slides
+
+Python 3.2 added the ``interact`` command
+
+::
+
+   (Pdb) interact
+   *interactive*
+   >>> locals().keys()
+   dict_keys(['make_server', 'self', 'httpd', '__name__', '__builtins__', 'CalculatorWSGIHandler', '__file__', 'value_or_operator', 'CalculatorServer', 'Calculator', 'rpn_app'])
+   >>>
 
 
 .. rst-class:: segue dark
