@@ -1,3 +1,6 @@
+.. role:: strike
+    :class: strike
+
 .. highlight:: python
 
 .. rst-class:: segue dark nobackground
@@ -282,8 +285,8 @@ Asking for Help
 Debugging with PDB
 ==================
 
-Our Buggy Program
------------------
+HTTP Maths
+----------
 
 Consider a small web application that provides a `postfix notation`_
 calculator. You pass your arguments as path elements, and it applies
@@ -298,7 +301,7 @@ them to the stack and returns the result.
    curl "http://localhost:8000/2/10/+/2/*"
    The answer is 24
 
-.. nextslide::
+.. nextslide:: HTTP :strike:`Maths` Bugs
 
 It's cool, but not great with unexpected input.
 
@@ -317,7 +320,7 @@ It's cool, but not great with unexpected input.
        value = int(value_or_operator)
    ValueError: invalid literal for int() with base 10: 'abc'
 
-.. nextslide::
+.. nextslide:: HTTP :strike:`Maths` Bugs
 
 We can run it under ``pdb`` to see what's actually happening when it
 blows up.
@@ -334,7 +337,7 @@ blows up.
 
    $ curl http://localhost:8000/2/abc/+
 
-.. nextslide::
+.. nextslide:: HTTP :strike:`Maths` Bugs
 
 Now when we hit the bad URL with ``curl``, Python drops into PDB.
 
