@@ -87,11 +87,11 @@ Everybody Prints
 PDB is Better
 =============
 
-.. rst-class:: build white
+.. rst-class:: build white larger
 
-* PDB lets you explore the state of a running program. Or a dead one.
-* PDB will run a program repeatedly as you debug it
-* It's extensible, so you can build the tools you need
+* Explore the state of a running program. Or a dead one.
+* Repeatedly run a program to debug it
+* Build the tools you need to extend it
 
 .. rst-class:: segue dark
 

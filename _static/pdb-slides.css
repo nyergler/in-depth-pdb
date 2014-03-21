@@ -85,3 +85,9 @@ div.highlight > pre {
 .title-slide hgroup h2 {
     text-shadow: 1px 1px white;
 }
+
+.larger {
+  font-size: 32px;
+  line-height: 36px;
+  letter-spacing: 0;
+}
