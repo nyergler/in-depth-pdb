@@ -199,30 +199,13 @@ waiting for a command.
        def fib(n):
    ValueError: invalid literal for int() with base 10: 'samples/fibonacci_trace.py'
 
-* ``cont`` will *continue* execution
+* ``cont`` will leave the debugger and let your program **continue**
+  executing
 
 .. rst-class:: segue dark
 
 Executing Code Under PDB
 ========================
-
-pdb.run
--------
-
-* PDB will stop *before* executing the first statement
-
-::
-
-   >>> pdb.run("fib('25')")
-   > <string>(1)<module>()
-   (Pdb)
-
-::
-
-   >>> pdb.runcall(fib, 25)
-   > /Users/nathan/p/pdb/samples/fibonacci.py(7)fib()
-   -> if n <= 1:
-   (Pdb)
 
 Running PDB as a Script
 -----------------------
@@ -232,6 +215,27 @@ Running PDB as a Script
    $ python -m pdb samples/fibonacci.py 5
    > /Users/nathan/p/pdb/samples/fibonacci.py(1)<module>()
    -> import sys
+   (Pdb)
+
+
+pdb.run
+-------
+
+* PDB will stop *before* executing the first statement
+
+::
+
+   >>> import pdb
+   >>> pdb.run("fib('25')")
+   > <string>(1)<module>()
+   (Pdb)
+
+::
+
+   >>> import pdb
+   >>> pdb.runcall(fib, 25)
+   > /Users/nathan/p/pdb/samples/fibonacci.py(7)fib()
+   -> if n <= 1:
    (Pdb)
 
 
