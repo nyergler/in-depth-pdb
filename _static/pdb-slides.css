@@ -81,3 +81,7 @@ div.highlight > pre {
     padding-left: 0;
 
 }
+
+.title-slide hgroup h2 {
+    text-shadow: 1px 1px white;
+}
