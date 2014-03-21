@@ -16,44 +16,43 @@ Look around running code
    (Pdb) p value_or_operator
    'abc'
 
-.. rst-class:: content-smaller
-
 Look around Python's code
 -------------------------
+
+..
+   (Pdb) b os.path.join
+   Breakpoint 2 at /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py:68
+   (Pdb) c
+
 
 .. code-block:: none
    :emphasize-lines: 5-7
 
-   (Pdb) b os.path.join
-   Breakpoint 2 at /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py:68
-   (Pdb) c
    >>> os.path.join('/Users', 'nathan')
    > /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py(73)join()
    -> path = a
-   (Pdb) l
-    68 B	def join(a, *p):
-    69  	    """Join two or more pathname components, inserting '/' as needed.
-    70  	    If any component is an absolute path, all previous path components
-    71  	    will be discarded.  An empty last part will result in a path that
-    72  	    ends with a separator."""
-    73  ->	    path = a
-    74  	    for b in p:
-    75  	        if b.startswith('/'):
-    76  	            path = b
-    77  	        elif path == '' or path.endswith('/'):
-    78  	            path +=  b
+   (Pdb) list
+    68 B   def join(a, *p):
+    69         """Join two or more pathname components, inserting '/' as needed.
+    70         If any component is an absolute path, all previous path components
+    71         will be discarded.  An empty last part will result in a path that
+    72         ends with a separator."""
+    73  ->     path = a
+    74         for b in p:
+    75             if b.startswith('/'):
+    76                 path = b
+    77             elif path == '' or path.endswith('/'):
+    78                 path +=  b
    (Pdb) !a
    '/Users'
    (Pdb) !p
    ('nathan',)
-   (Pdb)
-
-.. rst-class:: content-smaller
 
 Return to the scene of the crime
 --------------------------------
 
 .. code-block:: none
+   :emphasize-lines: 1,12,15-16
 
    >>> s = make_server('', 8000, pfcalc.rpn_app)
    Traceback (most recent call last):
@@ -64,12 +63,8 @@ Return to the scene of the crime
        self.server_bind()
      File "/usr/lib/python2.7/wsgiref/simple_server.py", line 48, in server_bind
        HTTPServer.server_bind(self)
-     File "/usr/lib/python2.7/BaseHTTPServer.py", line 108, in server_bind
-       SocketServer.TCPServer.server_bind(self)
      File "/usr/lib/python2.7/SocketServer.py", line 430, in server_bind
        self.socket.bind(self.server_address)
-     File "/usr/lib/python2.7/socket.py", line 224, in meth
-       return getattr(self._sock,name)(*args)
    socket.error: [Errno 98] Address already in use
    >>> import pdb
    >>> pdb.pm()
@@ -396,7 +391,7 @@ Listing Code
 You can also give it additional parameters to control what lines are shown.
 
 .. nextslide::
-   :classes: tip content-columns-2 content-smaller
+   :classes: tip content-columns-2
 
 .. rst-class:: span-columns
 
@@ -409,32 +404,32 @@ the entire function.
 
 
 
-    22  	            value = self.OPERATORS[value_or_operator](
-    23  	                self.state.pop(),
-    24  	                self.state.pop(),
-    25  	            )
-    26  	        else:
-    27  ->	            value = int(value_or_operator)
+    22             value = self.OPERATORS[value_or_operator](
+    23                 self.state.pop(),
+    24                 self.state.pop(),
+    25             )
+    26         else:
+    27  ->         value = int(value_or_operator)
     28
-    29  	        self.state.append(value)
+    29         self.state.append(value)
     30
-    31  	    def result(self):
+    31     def result(self):
     32
 
 .. code-block:: none
 
    (Pdb) ll
-    19  	    def push(self, value_or_operator):
+    19     def push(self, value_or_operator):
     20
-    21  	        if value_or_operator in self.OPERATORS:
-    22  	            value = self.OPERATORS[value_or_operator](
-    23  	                self.state.pop(),
-    24  	                self.state.pop(),
-    25  	            )
-    26  	        else:
-    27  ->	            value = int(value_or_operator)
+    21         if value_or_operator in self.OPERATORS:
+    22             value = self.OPERATORS[value_or_operator](
+    23                 self.state.pop(),
+    24                 self.state.pop(),
+    25             )
+    26         else:
+    27  ->         value = int(value_or_operator)
     28
-    29  	        self.state.append(value)
+    29         self.state.append(value)
 
 
 Pretty Print
@@ -518,8 +513,6 @@ Let's consider another example where our calculator isn't so hot.
    (Pdb)
 
 
-.. rst-class:: content-smaller
-
 Where am I?
 -----------
 
@@ -530,25 +523,10 @@ The ``where`` command shows the call stack that got us into this mess.
    (Pdb) where
      /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pdb.py(1314)main()
    -> pdb._runscript(mainpyfile)
-     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pdb.py(1233)_runscript()
-   -> self.run(statement)
      /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/bdb.py(400)run()
    -> exec cmd in globals, locals
-     <string>(1)<module>()
-     /Users/nathan/p/pdb/samples/pfcalc.py(1)<module>()
-   -> from wsgiref.simple_server import make_server
      /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(238)serve_forever()
    -> self._handle_request_noblock()
-     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(297)_handle_request_noblock()
-   -> self.handle_error(request, client_address)
-     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(295)_handle_request_noblock()
-   -> self.process_request(request, client_address)
-     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(321)process_request()
-   -> self.finish_request(request, client_address)
-     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(334)finish_request()
-   -> self.RequestHandlerClass(request, client_address, self)
-     /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(649)__init__()
-   -> self.handle()
      /Users/nathan/p/pdb/samples/pfcalc_wsgi.py(39)handle()
    -> handler.run(self.server.get_app())
      /Users/nathan/p/pdb/samples/pfcalc_wsgi.py(17)run()
