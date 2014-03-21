@@ -103,14 +103,18 @@ PDB 101
 Explicit Trace Points
 ---------------------
 
+.. rst-class:: gutter
+
 .. literalinclude:: /samples/fibonacci_trace.py
-   :emphasize-lines: 13
+   :line-classes: 13(arrow-line)
+   :emphasize-lines: 14
 
 .. rst-class:: column-break-before
 
-::
+.. code-block:: none
+   :emphasize-lines: 3
 
-   $ python samples/fibonacci_trace.py 5
+   $ python fibonacci_trace.py 5
    > /Users/nathan/p/pdb/samples/fibonacci_trace.py(12)<module>()
    -> print (fib(int(sys.argv[-1])))
    (Pdb)
@@ -123,14 +127,17 @@ waiting for a command.
 ``next``
 --------
 
+.. rst-class:: gutter
+
 .. literalinclude:: /samples/fibonacci_trace.py
    :emphasize-lines: 14
 
 .. rst-class:: columns-break-before
 
-::
+.. code-block:: none
+   :emphasize-lines: 3
 
-   $ python samples/fibonacci_trace.py 5
+   $ python fibonacci_trace.py 5
    > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
    -> print (fib(sys.argv[-1]))
    (Pdb) next
@@ -148,14 +155,17 @@ waiting for a command.
 ``step``
 --------
 
+.. rst-class:: gutter
+
 .. literalinclude:: /samples/fibonacci_trace.py
-   :emphasize-lines: 3
+   :emphasize-lines: 3,14
 
 .. rst-class:: columns-break-before
 
-::
+.. code-block:: none
+   :emphasize-lines: 3,6
 
-   $ python samples/fibonacci_trace.py 5
+   $ python fibonacci_trace.py 5
    > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
    -> print (fib(sys.argv[-1]))
    (Pdb) step
@@ -174,25 +184,24 @@ waiting for a command.
 ``cont``
 --------
 
+.. rst-class:: gutter
+
 .. literalinclude:: /samples/fibonacci_trace.py
 
 .. rst-class:: columns-break-before
 
-::
+.. code-block:: none
+   :emphasize-lines: 8
 
+   $ python fibonacci_trace.py 5
    > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
    -> print (fib(sys.argv[-1]))
-   (Pdb) s
+   (Pdb) step
    --Call--
    > /Users/nathan/p/pdb/samples/fibonacci_trace.py(3)fib()
    -> def fib(n):
    (Pdb) cont
-   Traceback (most recent call last):
-     File "samples/fibonacci_trace.py", line 14, in <module>
-       print (fib(sys.argv[-1]))
-     File "samples/fibonacci_trace.py", line 3, in fib
-       def fib(n):
-   ValueError: invalid literal for int() with base 10: 'samples/fibonacci_trace.py'
+   8
 
 * ``cont`` will leave the debugger and let your program **continue**
   executing

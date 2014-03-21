@@ -91,3 +91,17 @@ div.highlight > pre {
   line-height: 36px;
   letter-spacing: 0;
 }
+
+div.gutter   {
+    padding-left: 32px;
+}
+
+.arrow-line:before {
+    content: " ";
+    background-image: url("Go-next.svg");
+    background-size: 32px 32px;
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    margin-left: -32px;
+}
