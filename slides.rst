@@ -891,6 +891,7 @@ Breakpoint Conditions
    :classes: content-columns-2
 
 .. code-block:: none
+   :line-classes: 4(build-item-1),5(build-item-2),6-9(build-item-3),10-11(build-item-4)
 
    $ python -m pdb pfcalc.py
    ...
@@ -905,6 +906,7 @@ Breakpoint Conditions
    127.0.0.1 - - [12/Mar/2014 12:52:54] "POST /2/3/+ HTTP/1.1" 200 15
 
 .. code-block:: bash
+   :line-classes: 1-2(build-item-1),3-4(build-item-2),5(build-item-3),6(build-item-4)
 
    $ curl http://localhost:8000/2/3/\*
    The answer is 6
