@@ -8,6 +8,26 @@
 PDB: The Python Debugger
 ========================
 
+.. only:: not slides
+
+   Most developers have a preferred debugging strategy, and many of them
+   are variations on the ``print`` statement. There's nothing wrong with
+   that, you can get a lot of information about what a program is doing
+   by logging or printing information about its state.
+
+   They fall short, however, in that you need to know what you want
+   you're looking for before you start: if you realize after seeing
+   some data that what you really need to know if the state of some
+   other variable, you usually need to change the print statements and
+   restart execution.
+
+   Debuggers -- and PDB, in particular -- are a more flexible tool for
+   inspecting the state of a running program. PDB is built into
+   Python, so if you're using Python, you can already use it.
+
+   Here are a few examples of what you can do with PDB.
+
+
 Look around running code
 ------------------------
 
@@ -100,6 +120,10 @@ PDB is Better
 
 PDB 101
 =======
+
+.. only:: not slides
+
+   Let's start with the most common way people use PDB.
 
 .. rst-class:: content-columns-2 snap
 
