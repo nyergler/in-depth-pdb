@@ -507,12 +507,16 @@ Let's consider another example where our calculator isn't so hot.
 ::
 
    $ curl http://localhost:8000/2/3/+/5
+
+
+.. rst-class:: build-item-1
+
+.. code-block:: none
+
    Traceback (most recent call last):
      ...
      File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py", line 649, in __init__
        self.handle()
-     File "/Users/nathan/p/pdb/samples/pfcalc_wsgi.py", line 39, in handle
-       handler.run(self.server.get_app())
      File "/Users/nathan/p/pdb/samples/pfcalc_wsgi.py", line 17, in run
        self.result = application(self.environ, self.start_response)
      File "pfcalc.py", line 54, in rpn_app
@@ -578,8 +582,6 @@ Other PDB commands operate in the context of the current position.
     55  	    ]
     56
     57
-    58  	httpd = make_server('', 8000, rpn_app,
-    59  	                    server_class=CalculatorServer,
    (Pdb)
 
 
@@ -764,6 +766,8 @@ If we make a request to our application, we'll see it drop into PDB.
 
    $ curl http://localhost:8000/2/3/+
 
+.. rst-class:: build-item-1
+
 ::
 
    > /home/nathan/p/pdb/samples/pfcalc.py(43)rpn_app()
@@ -782,8 +786,6 @@ defined breakpoints::
   Num Type         Disp Enb   Where
   1   breakpoint   keep yes   at /home/nathan/p/pdb/samples/pfcalc.py:41
           breakpoint already hit 1 times
-  (Pdb) cont
-  127.0.0.1 - - [09/Mar/2014 17:18:42] "GET /2/3/+ HTTP/1.1" 200 15
 
 
 .. only:: not slides
