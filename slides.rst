@@ -25,11 +25,12 @@ PDB: The Python Debugger
    inspecting the state of a running program. PDB is built into
    Python, so if you're using Python, you can already use it.
 
-   Here are a few examples of what you can do with PDB.
+.. nextslide:: Look around running code
 
+.. only:: not slides
 
-Look around running code
-------------------------
+   With PDB you can inspect running code, and see what variables are
+   set to.
 
 .. code-block:: none
    :emphasize-lines: 3-4
@@ -39,14 +40,19 @@ Look around running code
    (Pdb) p value_or_operator
    'abc'
 
-Look around Python's code
--------------------------
+.. nextslide:: Look around Python's code
+
+.. only:: not slides
+
+   You can also look around code in the Python standard library. For
+   example, if you wanted to know what ``os.path.join`` actually does,
+   you can stop inside of it and look around. And you can do that
+   *without editing the source file*.
 
 ..
    (Pdb) b os.path.join
    Breakpoint 2 at /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py:68
    (Pdb) c
-
 
 .. code-block:: none
    :emphasize-lines: 5-7
@@ -71,8 +77,14 @@ Look around Python's code
    (Pdb) !p
    ('nathan',)
 
-Return to the scene of the crime
---------------------------------
+.. nextslide:: Return to the scene of the crime
+
+.. only:: not slides
+
+   You can also return to the scene of the proverbial crime using the
+   post-mortem debugger. This feature of PDB let's you inspect the
+   state of your program -- including the call stack -- as it existed
+   when a crashing exception occurred.
 
 .. code-block:: none
    :emphasize-lines: 1,12,15-16
@@ -96,19 +108,16 @@ Return to the scene of the crime
    (Pdb)
 
 
-.. rst-class:: dark segue
+.. nextslide:: Everybody Prints
+   :classes: dark segue
 
-Everybody Prints
-================
+.. nextslide:: PDB is Better
+   :classes: dark segue
 
 .. only:: not slides
 
-   ``print`` is great, if you know what you're looking for
-
-.. rst-class:: dark segue
-
-PDB is Better
-=============
+   Using ``print`` is great, if you know what you're looking for. PDB
+   is better. Reading this will show you how to use it to: 
 
 .. rst-class:: build white larger
 
