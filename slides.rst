@@ -332,6 +332,9 @@ It's cool, but not great with unexpected input.
 ::
 
    $ curl http://localhost:8000/2/abc/+/
+
+::
+
    Traceback (most recent call last):
      ...
      File "/Users/nathan/p/pdb/samples/pfcalc_wsgi.py", line 39, in handle
@@ -367,10 +370,13 @@ Now when we hit the bad URL with ``curl``, Python drops into PDB.
 
 ::
 
+   $ curl http://localhost:8000/2/abc/+/
+
+.. code-block:: python
+   :line-classes: 10-14(build-item-1)
+
    Traceback (most recent call last):
      ...
-     File "pfcalc_wsgi.py", line 39, in handle
-       handler.run(self.server.get_app())
      File "pfcalc_wsgi.py", line 17, in run
        self.result = application(self.environ, self.start_response)
      File "pfcalc.py", line 46, in rpn_app
@@ -475,13 +481,16 @@ You can pretty print the value of a variable using the ``pp`` command.
 
 ::
 
-   (Pdb) pp self.state
-   [2]
+   (Pdb) p self.OPERATORS
+   {'*': <slot wrapper '__mul__' of 'int' objects>, '+': <slot wrapper '__add__' of 'int' objects>, '/': <slot wrapper '__div__' of 'int' objects>}
+
+::
+
    (Pdb) pp self.OPERATORS
    {'*': <slot wrapper '__mul__' of 'int' objects>,
     '+': <slot wrapper '__add__' of 'int' objects>,
     '/': <slot wrapper '__div__' of 'int' objects>}
-   (Pdb)
+
 
 
 Evaluating Expressions
@@ -638,22 +647,37 @@ Our server starts with the following lines:
    httpd.serve_forever()
 
 .. nextslide::
+   :classes: content-columns-2
 
-Using post-mortem debugging is the same as modifying that to something
-like:
+.. rst-class:: span-columns
+
+The post-mortem debugger acts as a top-level exception handler.
+
+.. code-block:: python
+
+   httpd = make_server('',
+       8000, rpn_app,
+       server_class=CalculatorServer,
+       handler_class=CalculatorWSGIHandler,
+   )
+   print "Serving on port 8000..."
+   httpd.serve_forever()
 
 .. code-block:: python
 
    try:
-     httpd = make_server('', 8000, rpn_app,
-                         server_class=CalculatorServer,
-                         handler_class=CalculatorWSGIHandler,
+     httpd = make_server('',
+         8000, rpn_app,
+         server_class=CalculatorServer,
+         handler_class=CalculatorWSGIHandler,
      )
      print "Serving on port 8000..."
      httpd.serve_forever()
    except:
      import pdb
-     pdb.post_mortem()  # debug the exception being handled
+
+     # debug the exception being handled
+     pdb.post_mortem()  
 
 .. nextslide::
 
@@ -726,6 +750,7 @@ Setting Breakpoints
 
 .. literalinclude:: /samples/pfcalc.py
    :pyobject: rpn_app
+   :emphasize-lines: 1
 
 .. only:: not slides
 
@@ -739,8 +764,6 @@ Setting Breakpoints
    -> from wsgiref.simple_server import make_server
    (Pdb) break pfcalc.rpn_app
    Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:41
-   (Pdb) cont
-   Serving on port 8000...
 
 .. rst-class:: content-columns-2
 
@@ -749,6 +772,7 @@ Setting Breakpoints
 
 .. literalinclude:: /samples/pfcalc.py
    :pyobject: rpn_app
+   :emphasize-lines: 1
 
 .. code-block:: bash
    :emphasize-lines: 4
@@ -758,8 +782,6 @@ Setting Breakpoints
    -> from wsgiref.simple_server import make_server
    (Pdb) break pfcalc.py:41
    Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:41
-   (Pdb) cont
-   Serving on port 8000...
 
 .. rst-class:: span-columns
 
