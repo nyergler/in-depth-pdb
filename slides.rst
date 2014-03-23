@@ -810,6 +810,7 @@ Setting Breakpoints
 
 ::
 
+   (Pdb) help break
    b(reak) ([file:]lineno | function) [, condition]
 
 
@@ -894,6 +895,7 @@ Breakpoint Conditions
 
 ::
 
+   (Pdb) help break
    b(reak) ([file:]lineno | function) [, condition]
 
 .. only:: not slides
