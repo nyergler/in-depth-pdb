@@ -507,13 +507,25 @@ Evaluating Expressions
 
 You can also evaluate expressions using the ``!`` command.
 
-::
+.. rst-class:: build-item-1
 
-   (Pdb) !int(value_or_operator)
-   *** ValueError: invalid literal for int() with base 10: 'abc'
-   (Pdb) !len(self.state)
-   1
+.. literalinclude:: /samples/add.py
+   :pyobject: add
 
+.. rst-class:: build-item-2
+
+.. code-block:: none
+   :line-classes: 3-5(build-item-3),6-7(build-item-4)
+
+   > /home/nathan/p/pdb/samples/add.py(5)add()
+   -> return a + b + c
+   (Pdb) b+c
+   *** The specified object '+c' is not a function
+   or was not found along sys.path.
+   (Pdb) !b+c
+   5
+
+.. nextslide::
 
 .. only:: not slides
 
@@ -526,7 +538,7 @@ You can also evaluate expressions using the ``!`` command.
 
 .. only:: slides
 
-Python 3.2 added the ``interact`` command
+   Python 3.2 added the ``interact`` command
 
 ::
 
