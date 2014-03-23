@@ -988,21 +988,54 @@ Extending PDB
 Aliases
 -------
 
-PDB supports defining aliases for actions you take frequently.
+Define aliases for frequently used commands.
 
 
 ::
 
   alias d pp dir(%1)
 
+.. rst-class:: build-item-1 
+
+::
+
+   (Pdb) !self
+   <__main__.Calculator object at 0x7eff1e054790>
+   (Pdb) d self
+   ['OPERATORS',
+    '__class__',
+    '__dict__',
+    '__hash__',
+    '__init__',
+    '__new__',
+    '__repr__',
+    '__str__',
+    'push',
+    'result',
+    'state']
+
+.. nextslide::
+
 ::
 
   alias loc locals().keys()
+
+.. rst-class:: build-item-1
+
+::
+
+   (Pdb) loc
+   ['status', 'c', 'start_response', 'element', 'headers', 'environ']
+
+.. nextslide::
 
 ::
 
   alias printdict for key, value in %1.items(): print "%s: %s" % (key, value)
   alias pd printdict
+
+* Aliases can refer to other aliases
+* Arguments are always passed on
 
 .. only:: not slides
 
