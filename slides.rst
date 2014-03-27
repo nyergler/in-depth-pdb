@@ -1254,7 +1254,9 @@ See Also
   highlighting and tab completion
 * rdb_: PDB over a socket
 * pudb_: Full screen, console debugger
-* `pdb++`_: Overrides PDB with some advanced functionality like watches
+* `pdb++`_: Overrides PDB with some advanced functionality like
+  watches
+* `wdb`_: PDB over WebSockets
 * ``pdbtrack`` is included with modern distributions of
   `python-mode`_, and allows Emacs to open files as they're debugged
   by PDB.
@@ -1282,3 +1284,4 @@ See Also
 .. _pudb: https://pypi.python.org/pypi/pudb
 .. _`postfix notation`: http://en.wikipedia.org/wiki/Postfix_notation
 .. _`pdb++`: https://pypi.python.org/pypi/pdbpp/
+.. _`wdb`: https://github.com/Kozea/wdb
