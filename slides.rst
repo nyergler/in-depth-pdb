@@ -242,6 +242,14 @@ waiting for a command.
 * ``cont`` will leave the debugger and let your program **continue**
   executing
 
+PDB 101 Review
+--------------
+
+* ``next`` executes the current line
+* ``step`` executes the current line, stop ASAP
+* ``cont`` continue execution
+* Pressing Enter *repeats* previous command
+
 .. rst-class:: segue dark
 
 Executing Code Under PDB
