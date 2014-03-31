@@ -117,7 +117,7 @@ PDB: The Python Debugger
 .. only:: not slides
 
    Using ``print`` is great, if you know what you're looking for. PDB
-   is better. Reading this will show you how to use it to: 
+   is better. Reading this will show you how to use it to:
 
 .. rst-class:: build white larger
 
@@ -139,6 +139,22 @@ PDB 101
 Explicit Trace Points
 ---------------------
 
+.. only:: not slides
+
+   .. sidebar:: Trace Functions & Debuggers
+
+      So what is Python and the PDB module doing when you call
+      ``set_trace()``? CPython supports setting a system trace function,
+      which supports the implementation of debuggers and other source
+      analysis tools in Python itself. A trace function is registered for a
+      specific thread, and is called when a stack frame is executed. Trace
+      functions are registered using ``sys.settrace``, and provide quite a
+      bit of flexibility for introspecting what happens when a program is
+      running.
+
+      See the `sys.settrace`_ documentation for details about writing a
+      trace function.
+
 .. rst-class:: gutter
 
 .. literalinclude:: /samples/fibonacci_trace.py
@@ -155,8 +171,19 @@ Explicit Trace Points
    -> print (fib(int(sys.argv[-1])))
    (Pdb)
 
-PDB stops before the first statement in your program is executed,
-waiting for a command.
+PDB stops the program immediately after the trace point.
+
+.. only:: not slides
+
+   The PDB prompt -- ``(Pdb)`` -- shows the path of the current module
+   (``fibonacci_trace.py`` here), the line number (``12``), and the
+   current line. It also shows the name of the function currently
+   being executed, although in this case it's just ``<module>`` since
+   we're at module level code.
+
+   At the prompt you can enter one of the `debugger commands`_. You
+   can gain a lot of understanding about code by simply following the
+   execution path using the ``next`` and ``step`` commands.
 
 .. rst-class:: content-columns-2 snap
 
@@ -182,8 +209,8 @@ waiting for a command.
    -> print (fib(sys.argv[-1]))
    (Pdb)
 
-* ``next`` will execute the next statement (including any calls it
-  makes)
+``next`` will execute the current line (including any calls it
+makes)
 
 
 .. rst-class:: content-columns-2 snap
@@ -210,8 +237,8 @@ waiting for a command.
    -> def fib(n):
    (Pdb)
 
-* ``step`` will stop at the next statement (which may be inside a
-  function call)
+``step`` will stop at the next statement (which may be inside a
+function call)
 
 
 .. rst-class:: content-columns-2 snap
@@ -239,8 +266,8 @@ waiting for a command.
    (Pdb) cont
    8
 
-* ``cont`` will leave the debugger and let your program **continue**
-  executing
+``cont`` will leave the debugger and let your program **continue**
+executing
 
 PDB 101 Review
 --------------
@@ -255,8 +282,22 @@ PDB 101 Review
 Executing Code Under PDB
 ========================
 
+.. only:: not slides
+
+   Calling ``set_trace`` may be the most common way to enter PDB, but
+   it is definitely not the only way. The PDB module provides several
+   ways to enter the debugger; we'll look at the main ones, and then
+   focus on two.
+
+
 Running PDB as a Script
 -----------------------
+
+.. only:: not slides
+
+   PDB can by run as a Python module using ``-m`` command line parameter
+   to Python. In this mode, additional arguments are interpreted as the
+   program to run under PDB.
 
 ::
 
@@ -265,11 +306,46 @@ Running PDB as a Script
    -> import sys
    (Pdb)
 
+.. only:: not slides
+
+   This will drop us into PDB immediately, allowing us to set
+   breakpoints, examine initial state, etc. Note that the current line
+   is the first ``import`` in the file:: this is because when running
+   as a module, PDB stops execution before the program begins.
+
+   When your program ends, it will automatically be restarted for
+   another run.
+
+.. nextslide:: Running Django under PDB
+   :classes: tip
+
+It's entirely possible to run your Django app under PDB::
+
+  $ python -m pdb django runserver --settings=pdbdemo.settings
+
+If you want to set a low level breakpoint in your application,
+that's a good way to get the PDB console before anything happens.
+
 
 pdb.run
 -------
 
-* PDB will stop *before* executing the first statement
+.. only:: not slides
+
+   The ``pdb`` module provides three ways to directly execute code
+   under control of the debugger. These run methods also allow you to
+   specify the global and local context for statements and
+   expressions. I use these methods far less than other PDB utilities,
+   but they're useful for very fine grained testing and introspection.
+
+   ``pdb.run`` and ``pdb.runeval`` execute a Python statement or
+   expression, respectively, under control of the debugger. The code
+   under test is provided as a string, along with option dictionaries
+   specifying the global and local environment.
+
+.. only:: slides
+
+   Execute a statement or expression under the debugger.
 
 ::
 
@@ -411,7 +487,19 @@ Now when we hit the bad URL with ``curl``, Python drops into PDB.
 Inspecting State
 ----------------
 
-You can ``p``\ rint the value of a variable.
+.. only:: not slides
+
+   Entering the debugger is only interesting if you can actually use it
+   to figure out what's going on in a program, so let's talk about how
+   you interact with locals inside of the debugger.
+
+   There are two debugger commands that are useful for inspecting values
+   in the debugger:: ``p`` and ``pp`` will print and
+   "pretty-print" a value, respectively.
+
+.. only:: slides
+
+    You can ``p``\ rint the value of a variable.
 
 ::
 
@@ -515,6 +603,17 @@ Evaluating Expressions
 
 You can also evaluate expressions using the ``!`` command.
 
+
+   Most PDB commands have a short and long form. For example, ``next``
+   can be abbreviated as ``n``. Check the `debugger command`_
+   reference for details.
+
+   Note that this short form is a good reason to use ``!`` to denote
+   Python expressions: input that could either be an expression or a
+   debugger command is evaluated as the latter. It's frustrating to
+   expect to evaluate a variable named ``c`` and wind up exiting the
+   debugger and continuing instead.
+
 .. rst-class:: build-item-1
 
 .. literalinclude:: /samples/add.py
@@ -593,6 +692,12 @@ Let's consider another example where our calculator isn't so hot.
 
 Where am I?
 -----------
+
+.. only:: not slides
+
+   Once inside the debugger, it's useful to be able to figure out
+   where you are in the call stack. The ``where`` command prints the
+   stack trace with the most recent call last.
 
 The ``where`` command shows the call stack that got us into this mess.
 
@@ -706,7 +811,7 @@ The post-mortem debugger acts as a top-level exception handler.
      import pdb
 
      # debug the exception being handled
-     pdb.post_mortem()  
+     pdb.post_mortem()
 
 .. nextslide::
 
@@ -1017,7 +1122,7 @@ Define aliases for frequently used commands.
 
   alias d pp dir(%1)
 
-.. rst-class:: build-item-1 
+.. rst-class:: build-item-1
 
 ::
 
