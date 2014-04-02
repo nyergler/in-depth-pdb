@@ -35,7 +35,7 @@ PDB: The Python Debugger
 .. code-block:: none
    :emphasize-lines: 3-4
 
-   > /Users/nathan/p/pdb/samples/pfcalc.py(28)push()
+   > pfcalc.py(28)push()
    -> value = int(value_or_operator)
    (Pdb) p value_or_operator
    'abc'
@@ -167,7 +167,7 @@ Explicit Trace Points
    :emphasize-lines: 3
 
    $ python fibonacci_trace.py 5
-   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(12)<module>()
+   > fibonacci_trace.py(12)<module>()
    -> print (fib(int(sys.argv[-1])))
    (Pdb)
 
@@ -201,12 +201,12 @@ PDB stops the program immediately after the trace point.
    :emphasize-lines: 3
 
    $ python fibonacci_trace.py 5
-   > /home/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
+   > fibonacci_trace.py(14)<module>()
    -> print (fib(sys.argv[-1]))
    (Pdb) next
    8
    --Return--
-   > /home/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()->None
+   > fibonacci_trace.py(14)<module>()->None
    -> print (fib(sys.argv[-1]))
    (Pdb)
 
@@ -230,11 +230,11 @@ makes)
    :emphasize-lines: 3,6
 
    $ python fibonacci_trace.py 5
-   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
+   > fibonacci_trace.py(14)<module>()
    -> print (fib(sys.argv[-1]))
    (Pdb) step
    --Call--
-   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(3)fib()
+   > fibonacci_trace.py(3)fib()
    -> def fib(n):
    (Pdb)
 
@@ -258,11 +258,11 @@ function call)
    :emphasize-lines: 8
 
    $ python fibonacci_trace.py 5
-   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
+   > fibonacci_trace.py(14)<module>()
    -> print (fib(sys.argv[-1]))
    (Pdb) step
    --Call--
-   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(3)fib()
+   > fibonacci_trace.py(3)fib()
    -> def fib(n):
    (Pdb) cont
    8
@@ -303,7 +303,7 @@ Running PDB as a Script
 ::
 
    $ python -m pdb samples/fibonacci.py 5
-   > /Users/nathan/p/pdb/samples/fibonacci.py(1)<module>()
+   > fibonacci.py(1)<module>()
    -> import sys
    (Pdb)
 
@@ -359,7 +359,7 @@ pdb.run
 
    >>> import pdb
    >>> pdb.runcall(fib, 25)
-   > /Users/nathan/p/pdb/samples/fibonacci.py(7)fib()
+   > fibonacci.py(7)fib()
    -> if n <= 1:
    (Pdb)
 
@@ -431,9 +431,9 @@ It's cool, but not great with unexpected input.
 
    Traceback (most recent call last):
      ...
-     File "/Users/nathan/p/pdb/samples/pfcalc_wsgi.py", line 39, in handle
+     File "pfcalc_wsgi.py", line 39, in handle
        handler.run(self.server.get_app())
-     File "/Users/nathan/p/pdb/samples/pfcalc_wsgi.py", line 17, in run
+     File "pfcalc_wsgi.py", line 17, in run
        self.result = application(self.environ, self.start_response)
      File "pfcalc.py", line 46, in rpn_app
        c.push(element)
@@ -449,7 +449,7 @@ blows up.
 ::
 
    python -m pdb pfcalc.py
-   > /Users/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   > pfcalc.py(1)<module>()
    -> from wsgiref.simple_server import make_server
    (Pdb) cont
    Serving on port 8000...
@@ -480,7 +480,7 @@ Now when we hit the bad URL with ``curl``, Python drops into PDB.
    ValueError: invalid literal for int() with base 10: 'abc'
    Uncaught exception. Entering post mortem debugging
    Running 'cont' or 'step' will restart the program
-   > /Users/nathan/p/pdb/samples/pfcalc.py(28)push()
+   > pfcalc.py(28)push()
    -> value = int(value_or_operator)
    (Pdb)
 
@@ -504,7 +504,7 @@ Inspecting State
 
 ::
 
-   > /Users/nathan/p/pdb/samples/pfcalc.py(28)push()
+   > pfcalc.py(28)push()
    -> value = int(value_or_operator)
    (Pdb) p value_or_operator
    'abc'
@@ -625,7 +625,7 @@ You can also evaluate expressions using the ``!`` command.
 .. code-block:: none
    :line-classes: 3-5(build-item-3),6-7(build-item-4)
 
-   > /home/nathan/p/pdb/samples/add.py(5)add()
+   > add.py(5)add()
    -> return a + b + c
    (Pdb) b+c
    *** The specified object '+c' is not a function
@@ -679,14 +679,14 @@ Let's consider another example where our calculator isn't so hot.
      ...
      File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py", line 649, in __init__
        self.handle()
-     File "/Users/nathan/p/pdb/samples/pfcalc_wsgi.py", line 17, in run
+     File "pfcalc_wsgi.py", line 17, in run
        self.result = application(self.environ, self.start_response)
      File "pfcalc.py", line 54, in rpn_app
        "The answer is %d" % (c.result(),),
      File "pfcalc.py", line 36, in result
        raise SyntaxError("Invalid expression.")
    SyntaxError: Invalid expression.
-   > /Users/nathan/p/pdb/samples/pfcalc.py(36)result()
+   > pfcalc.py(36)result()
    -> raise SyntaxError("Invalid expression.")
    (Pdb)
 
@@ -711,13 +711,13 @@ The ``where`` command shows the call stack that got us into this mess.
    -> exec cmd in globals, locals
      /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py(238)serve_forever()
    -> self._handle_request_noblock()
-     /Users/nathan/p/pdb/samples/pfcalc_wsgi.py(39)handle()
+     pfcalc_wsgi.py(39)handle()
    -> handler.run(self.server.get_app())
-     /Users/nathan/p/pdb/samples/pfcalc_wsgi.py(17)run()
+     pfcalc_wsgi.py(17)run()
    -> self.result = application(self.environ, self.start_response)
-     /Users/nathan/p/pdb/samples/pfcalc.py(54)rpn_app()
+     pfcalc.py(54)rpn_app()
    -> "The answer is %d" % (c.result(),),
-   > /Users/nathan/p/pdb/samples/pfcalc.py(36)result()
+   > pfcalc.py(36)result()
    -> raise SyntaxError("Invalid expression.")
    (Pdb)
 
@@ -729,7 +729,7 @@ You can use the ``up`` command to move one frame up the stack.
 ::
 
    (Pdb) up
-   > /Users/nathan/p/pdb/samples/pfcalc.py(54)rpn_app()
+   > pfcalc.py(54)rpn_app()
    -> "The answer is %d" % (c.result(),),
 
 PDB shows that the current position is now the call to ``result``.
@@ -845,7 +845,7 @@ difference will be obvious.
 
    $ python pf_settrace.py
    --Return--
-   > /home/nathan/p/pdb/samples/pf_settrace.py(15)<module>()->None
+   > pf_settrace.py(15)<module>()->None
    -> pdb.set_trace()
    (Pdb)
 
@@ -895,10 +895,10 @@ Setting Breakpoints
    :emphasize-lines: 4
 
    $ python -m pdb pfcalc.py
-   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   > pfcalc.py(1)<module>()
    -> from wsgiref.simple_server import make_server
    (Pdb) break pfcalc.rpn_app
-   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:41
+   Breakpoint 1 at pfcalc.py:41
 
 .. rst-class:: content-columns-2
 
@@ -913,10 +913,10 @@ Setting Breakpoints
    :emphasize-lines: 4
 
    $ python -m pdb pfcalc.py
-   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   > pfcalc.py(1)<module>()
    -> from wsgiref.simple_server import make_server
    (Pdb) break pfcalc.py:41
-   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:41
+   Breakpoint 1 at pfcalc.py:41
 
 .. rst-class:: span-columns
 
@@ -952,10 +952,10 @@ If we make a request to our application, we'll see it drop into PDB.
 
 ::
 
-   > /home/nathan/p/pdb/samples/pfcalc.py(43)rpn_app()
+   > pfcalc.py(43)rpn_app()
    -> c = Calculator()
    (Pdb) n
-   > /home/nathan/p/pdb/samples/pfcalc.py(45)rpn_app()
+   > pfcalc.py(45)rpn_app()
    (Pdb) !environ['PATH_INFO']
    '/2/3/+'
 
@@ -966,7 +966,7 @@ defined breakpoints::
 
   (Pdb) break
   Num Type         Disp Enb   Where
-  1   breakpoint   keep yes   at /home/nathan/p/pdb/samples/pfcalc.py:41
+  1   breakpoint   keep yes   at pfcalc.py:41
           breakpoint already hit 1 times
 
 
@@ -992,7 +992,7 @@ under the PDB module. The breakpoint is still active.
 
    (Pdb) break
    Num Type         Disp Enb   Where
-   1   breakpoint   keep yes   at /home/nathan/p/pdb/samples/pfcalc.py:41
+   1   breakpoint   keep yes   at pfcalc.py:41
            breakpoint already hit 4 times
 
 
@@ -1043,10 +1043,10 @@ Breakpoint Conditions
    :emphasize-lines: 4
 
    $ python -m pdb pfcalc.py
-   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   > pfcalc.py(1)<module>()
    -> from wsgiref.simple_server import make_server
    (Pdb) break pfcalc.rpn_app, environ['REQUEST_METHOD'] != 'GET'
-   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:40
+   Breakpoint 1 at pfcalc.py:40
    (Pdb)
 
 .. nextslide::
@@ -1055,13 +1055,13 @@ Breakpoint Conditions
    :emphasize-lines: 6-9
 
    $ python -m pdb pfcalc.py
-   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   > pfcalc.py(1)<module>()
    -> from wsgiref.simple_server import make_server
    (Pdb) break pfcalc.rpn_app, environ['REQUEST_METHOD'] != 'GET'
-   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:40
+   Breakpoint 1 at pfcalc.py:40
    (Pdb) break
    Num Type         Disp Enb   Where
-   1   breakpoint   keep yes   at /home/nathan/p/pdb/samples/pfcalc.py:40
+   1   breakpoint   keep yes   at pfcalc.py:40
            stop only if environ['REQUEST_METHOD'] != 'GET'
    (Pdb) cont
    Serving on port 8000...
@@ -1077,7 +1077,7 @@ Breakpoint Conditions
    Serving on port 8000...
    127.0.0.1 - - [12/Mar/2014 12:52:24] "GET /2/3/* HTTP/1.1" 200 15
    127.0.0.1 - - [12/Mar/2014 12:52:30] "GET /2/3/+ HTTP/1.1" 200 15
-   > /home/nathan/p/pdb/samples/pfcalc.py(42)rpn_app()
+   > pfcalc.py(42)rpn_app()
    -> c = Calculator()
    (Pdb) environ['REQUEST_METHOD']
    'POST'
@@ -1195,10 +1195,10 @@ Breakpoint Commands
    :emphasize-lines: 4
 
    $ python -m pdb pfcalc.py
-   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   > pfcalc.py(1)<module>()
    -> from wsgiref.simple_server import make_server
    (Pdb) break pfcalc.py:21
-   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:21
+   Breakpoint 1 at pfcalc.py:21
 
 .. nextslide::
 
@@ -1206,10 +1206,10 @@ Breakpoint Commands
    :emphasize-lines: 6,9
 
    $ python -m pdb pfcalc.py
-   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   > pfcalc.py(1)<module>()
    -> from wsgiref.simple_server import make_server
    (Pdb) break pfcalc.py:21
-   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:21
+   Breakpoint 1 at pfcalc.py:21
    (Pdb) commands 1
    (com) pp self.state
    (com) pp value_or_operator
@@ -1222,10 +1222,10 @@ Breakpoint Commands
    :emphasize-lines: 10
 
    $ python -m pdb pfcalc.py
-   > /home/nathan/p/pdb/samples/pfcalc.py(1)<module>()
+   > pfcalc.py(1)<module>()
    -> from wsgiref.simple_server import make_server
    (Pdb) break pfcalc.py:21
-   Breakpoint 1 at /home/nathan/p/pdb/samples/pfcalc.py:21
+   Breakpoint 1 at pfcalc.py:21
    (Pdb) commands 1
    (com) pp self.state
    (com) pp value_or_operator
@@ -1244,15 +1244,15 @@ Breakpoint Commands
    Serving on port 8000...
    []
    '2'
-   > /home/nathan/p/pdb/samples/pfcalc.py(21)push()
+   > pfcalc.py(21)push()
    -> if value_or_operator in self.OPERATORS:
    [2]
    '3'
-   > /home/nathan/p/pdb/samples/pfcalc.py(21)push()
+   > pfcalc.py(21)push()
    -> if value_or_operator in self.OPERATORS:
    [2, 3]
    '*'
-   > /home/nathan/p/pdb/samples/pfcalc.py(21)push()
+   > pfcalc.py(21)push()
    -> if value_or_operator in self.OPERATORS:
    127.0.0.1 - - [12/Mar/2014 12:38:42] "GET /2/3/* HTTP/1.1" 200 15
 
