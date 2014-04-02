@@ -201,11 +201,12 @@ PDB stops the program immediately after the trace point.
    :emphasize-lines: 3
 
    $ python fibonacci_trace.py 5
-   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
+   > /home/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
    -> print (fib(sys.argv[-1]))
    (Pdb) next
-   ValueError: "invalid literal for int() with base 10: 'samples/fibonacci_trace.py'"
-   > /Users/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()
+   8
+   --Return--
+   > /home/nathan/p/pdb/samples/fibonacci_trace.py(14)<module>()->None
    -> print (fib(sys.argv[-1]))
    (Pdb)
 
