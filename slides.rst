@@ -996,8 +996,8 @@ under the PDB module. The breakpoint is still active.
            breakpoint already hit 4 times
 
 
-Toggling Breakpoints
---------------------
+Manipulating Breakpoints
+------------------------
 
 The breakpoint number (``1``) above can be used to control its
 behavior with the following commands:
