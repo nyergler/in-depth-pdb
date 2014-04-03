@@ -1183,13 +1183,33 @@ more powerful commands.
 Breakpoint Commands
 -------------------
 
-* PDB can execute debugger commands when a breakpoint is encountered
-* These commands can be anything you normally enter at the ``(Pdb)``
-  prompt
-* The command list ends with either the ``end`` command, or any
-  command that resumes execution (``step``, ``next``, ``cont``)
+.. only:: not slides
+
+   PDB also allows you to specify commands to execute when a breakpoint
+   is triggered. This allows you to automatically execute any PDB command
+   when a breakpoint is encountered, including things like changing the
+   ignore count, disabling or enabling other breakpoints, or printing the
+   value of a variable.
+
+   Consider the situation where it'd be helpful to display the value of a
+   variable when a request comes in: you don't necessarily want to set a
+   breakpoint, you'd just like to see it in the console as you're
+   working. You can do this using breakpoint commands.
+
+.. only:: slides
+
+   * PDB can execute debugger commands when a breakpoint is encountered
+   * These commands can be anything you normally enter at the ``(Pdb)``
+     prompt
+   * The command list ends with either the ``end`` command, or any
+     command that resumes execution (``step``, ``next``, ``cont``)
 
 .. nextslide::
+
+.. only:: not slides
+
+   First, start the program under PDB and set the breakpoint like you
+   normally would:
 
 .. code-block:: none
    :emphasize-lines: 4
@@ -1202,24 +1222,13 @@ Breakpoint Commands
 
 .. nextslide::
 
+.. only:: not slides
+
+   Now set the commands to execute when breakpoint ``1`` is hit:
+
 .. code-block:: none
    :emphasize-lines: 6,9
-
-   $ python -m pdb pfcalc.py
-   > pfcalc.py(1)<module>()
-   -> from wsgiref.simple_server import make_server
-   (Pdb) break pfcalc.py:21
-   Breakpoint 1 at pfcalc.py:21
-   (Pdb) commands 1
-   (com) pp self.state
-   (com) pp value_or_operator
-   (com) cont
-   (Pdb)
-
-.. nextslide::
-
-.. code-block:: none
-   :emphasize-lines: 10
+   :line-classes: 10-11(build-item-1)
 
    $ python -m pdb pfcalc.py
    > pfcalc.py(1)<module>()
@@ -1233,8 +1242,20 @@ Breakpoint Commands
    (Pdb) cont
    Serving on port 8000...
 
+.. only:: not slides
+
+   You can see the prompt changes from ``(Pdb)`` to ``(com)`` when
+   entering commands. The command entry is terminated when you type
+   ``end`` or any PDB command that resumes execution (``cont`` in this
+   case).
+
 .. nextslide::
    :classes: content-columns-2
+
+.. only:: not slides
+
+   If we continue execution and make a couple requests, we'll see the
+   commands in action.
 
 .. code-block:: none
    :emphasize-lines: 4-5,8-9,12-13
@@ -1263,69 +1284,8 @@ Breakpoint Commands
 
 .. only:: not slides
 
-   PDB also allows you to specify commands to execute when a breakpoint
-   is triggered. This allows you to automatically execute any PDB command
-   when a breakpoint is encountered, including things like changing the
-   ignore count, disabling or enabling other breakpoints, or printing the
-   value of a variable.
-
-   Consider the situation where it'd be helpful to display the value of a
-   variable when a request comes in: you don't necessarily want to set a
-   breakpoint, you'd just like to see it in the console as you're
-   working. You can do this using breakpoint commands.
-
-   First, start the program under PDB and set the breakpoint like you
-   normally would::
-
-     $ ../bin/python -m pdb ../bin/django runserver --settings=pdbdemo.settings --nothreading --noreload
-     > /home/nathan/p/pdb/bin/django(3)<module>()
-     -> import sys
-     (Pdb) break django/core/handlers/base.py:75
-     Breakpoint 1 at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
-     (Pdb) break
-     Num Type         Disp Enb   Where
-     1   breakpoint   keep yes   at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
-
-   Now set the commands to execute on breakpoint 1::
-
-     (Pdb) commands 1
-     (com) print request.method
-     (com) cont
-     (Pdb) break
-     Num Type         Disp Enb   Where
-     1   breakpoint   keep yes   at
-     /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
-
-   You can see the prompt changes from ``(Pdb)`` to ``(com)`` when
-   entering commands. The command entry is terminated when you type
-   ``end`` or any PDB command that resumes execution (``cont`` in this case).
-
-   If we continue execution and make a couple requests, we'll see the
-   ``print`` command in action::
-
-     (Pdb) cont
-     Validating models...
-
-     0 errors found
-     Django version 1.4.3, using settings 'pdbdemo.settings'
-     Development server is running at http://127.0.0.1:8000/
-     Quit the server with CONTROL-C.
-     GET
-     > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(75)get_response()
-     -> from django.conf import settings
-     [09/Jan/2013 10:45:50] "GET /hello/world HTTP/1.1" 200 59
-     GET
-     > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(75)get_response()
-     -> from django.conf import settings
-     [09/Jan/2013 10:45:55] "GET /hello/world HTTP/1.1" 200 59
-     POST
-     > /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(75)get_response()
-     -> from django.conf import settings
-     [09/Jan/2013 10:46:18] "POST /hello/world HTTP/1.1" 200 59
-
-   Note that the normal breakpoint message is still printed unless we use
-   the ``silent`` command in our list of breakpoint commands.
-
+   Note that the normal breakpoint message is still printed unless we
+   use the ``silent`` command in our list of breakpoint commands.
 
    See the `command reference`_ for details.
 
