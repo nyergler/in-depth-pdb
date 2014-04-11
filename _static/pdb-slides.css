@@ -109,3 +109,7 @@ div.gutter   {
 .strike {
   text-decoration: line-through;
 }
+
+div.slides-link pre {
+  font-size: 1.5em;
+}

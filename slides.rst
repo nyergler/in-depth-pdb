@@ -3,6 +3,16 @@
 
 .. highlight:: python
 
+.. rst-class:: content-flexbox content-vcenter dark
+
+.. slide::
+
+   .. rst-class:: slides-link
+
+   ::
+
+     http://presentotron.com/nyergler/pdb
+
 .. rst-class:: segue dark nobackground
 
 PDB: The Python Debugger
