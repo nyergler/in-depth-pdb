@@ -1355,6 +1355,13 @@ See Also
     <http://www.dalkescientific.com/writings/diary/archive/2005/04/20/tracing_python_code.html>`_
   * `Watchpoints in Python <http://sourceforge.net/blog/watchpoints-in-python/>`_
 
+So remember...
+==============
+
+* PDB lets you explore your program
+* You can stop in code you can't edit
+* PDB is an extensible tool
+
 .. _PDB: http://docs.python.org/2/library/pdb.html
 .. _`sys.settrace`:  http://docs.python.org/2/library/sys.html#sys.settrace
 .. _`command reference`:
