@@ -328,7 +328,6 @@ Running PDB as a Script
    another run.
 
 .. nextslide:: Running Django under PDB
-   :classes: tip
 
 It's entirely possible to run your Django app under PDB::
 
@@ -549,7 +548,7 @@ Listing Code
 You can also give it additional parameters to control what lines are shown.
 
 .. nextslide::
-   :classes: tip content-columns-2
+   :classes: content-columns-2
 
 .. rst-class:: span-columns
 
