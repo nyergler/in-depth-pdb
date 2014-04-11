@@ -63,6 +63,7 @@ slide.tip {
 
 .big-example pre {
     font-size: 125%;
+    line-height: 145%;
 }
 
 article.columns-2 div:first-of-type {
@@ -112,4 +113,9 @@ div.gutter   {
 
 div.slides-link pre {
   font-size: 1.5em;
+}
+
+tt {
+  font-family: 'Source Code Pro', 'Courier New', monospace;
+  font-weight: bold;
 }

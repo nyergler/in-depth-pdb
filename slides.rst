@@ -13,6 +13,9 @@
 
      http://presentotron.com/nyergler/pdb
 
+
+     http://github.com/nyergler/in-depth-pdb
+
 .. rst-class:: segue dark nobackground
 
 PDB: The Python Debugger
@@ -97,6 +100,7 @@ PDB: The Python Debugger
    when a crashing exception occurred.
 
 .. code-block:: none
+   :line-classes: 1(build-item-1),2-12(build-item-2),13-17(build-item-3)
    :emphasize-lines: 1,12,15-16
 
    >>> s = make_server('', 8000, pfcalc.rpn_app)
@@ -419,7 +423,7 @@ Consider a small web application that provides a `postfix notation`_
 calculator. You pass your arguments as path elements, and it applies
 them to the stack and returns the result.
 
-::
+.. code-block:: none
 
    $ curl "http://localhost:8000/2/1/+"
    The answer is 3
@@ -436,7 +440,8 @@ It's cool, but not great with unexpected input.
 
    $ curl http://localhost:8000/2/abc/+/
 
-::
+.. code-block:: none
+   :emphasize-lines: 11
 
    Traceback (most recent call last):
      ...
@@ -475,8 +480,10 @@ Now when we hit the bad URL with ``curl``, Python drops into PDB.
 
    $ curl http://localhost:8000/2/abc/+/
 
+.. rst-class:: build-item-1
+
 .. code-block:: python
-   :line-classes: 10-14(build-item-1)
+   :line-classes: 10-14(build-item-2)
 
    Traceback (most recent call last):
      ...
@@ -545,7 +552,7 @@ Listing Code
     32  	    def result(self):
     33
 
-You can also give it additional parameters to control what lines are shown.
+.. You can also give it additional parameters to control what lines are shown.
 
 .. nextslide::
    :classes: content-columns-2
@@ -613,6 +620,7 @@ Evaluating Expressions
 
 You can also evaluate expressions using the ``!`` command.
 
+.. only:: not slides
 
    Most PDB commands have a short and long form. For example, ``next``
    can be abbreviated as ``n``. Check the `debugger command`_
@@ -711,7 +719,8 @@ Where am I?
 
 The ``where`` command shows the call stack that got us into this mess.
 
-::
+.. code-block:: none
+   :line-classes: 2-(build-item-1)
 
    (Pdb) where
      /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pdb.py(1314)main()
@@ -779,13 +788,16 @@ We've been running the server using the PDB module::
    debugger. The post-mortem debugger uses ``sys.last_exception`` to
    figure out where to start debugging.
 
+.. nextslide::
+
 Our server starts with the following lines:
 
 .. code-block:: python
 
-   httpd = make_server('', 8000, rpn_app,
-                       server_class=CalculatorServer,
-                       handler_class=CalculatorWSGIHandler,
+   httpd = make_server('',
+       8000, rpn_app,
+       server_class=CalculatorServer,
+       handler_class=CalculatorWSGIHandler,
    )
    print "Serving on port 8000..."
    httpd.serve_forever()
@@ -926,6 +938,7 @@ Setting Breakpoints
    -> from wsgiref.simple_server import make_server
    (Pdb) break pfcalc.py:41
    Breakpoint 1 at pfcalc.py:41
+   (Pdb) cont
 
 .. rst-class:: span-columns
 
@@ -1011,12 +1024,23 @@ Manipulating Breakpoints
 The breakpoint number (``1``) above can be used to control its
 behavior with the following commands:
 
-* ``disable [bpnum]`` disables the given breakpoint. The breakpoint
-  remains set, but will not be triggered when the line is encountered.
-* ``enable [bpnum]`` enables the given breakpoint.
-* ``ignore bpnum [count]`` will ignore a breakpoint for [count] hits.
-* ``clear [bpnum]`` clears the breakpoints specified. If no breakpoints are
-  specified, prompt to clear all breakpoints.
+* ``disable [bpnum]``
+
+  Disables the given breakpoint. The breakpoint remains set, but will
+  not be triggered when the line is encountered.
+
+* ``enable [bpnum]``
+
+  Enables the given breakpoint.
+
+* ``ignore bpnum [count]``
+
+  Ignore a breakpoint for [count] hits.
+
+* ``clear [bpnum]``
+
+  Clears the breakpoints specified. If no breakpoints are specified,
+  prompt to clear all breakpoints.
 
 .. rst-class:: content-flexbox content-vcenter content-big-example
 
@@ -1130,15 +1154,17 @@ Define aliases for frequently used commands.
 
 ::
 
-  alias d pp dir(%1)
+  alias dr pp dir(%1)
 
 .. rst-class:: build-item-1
 
-::
+.. code-block:: none
+   :emphasize-lines: 3
+   :line-classes: 3-(build-item-2)
 
    (Pdb) !self
    <__main__.Calculator object at 0x7eff1e054790>
-   (Pdb) d self
+   (Pdb) dr self
    ['OPERATORS',
     '__class__',
     '__dict__',
@@ -1268,6 +1294,7 @@ Breakpoint Commands
 
 .. code-block:: none
    :emphasize-lines: 4-5,8-9,12-13
+   :line-classes: 4-7(build-item-1),8-11(build-item-2),12-(build-item-3)
 
    $ python -m pdb pfcalc.py
    ...
@@ -1287,6 +1314,7 @@ Breakpoint Commands
    127.0.0.1 - - [12/Mar/2014 12:38:42] "GET /2/3/* HTTP/1.1" 200 15
 
 .. code-block:: bash
+   :line-classes: 2(build-item-3)
 
    $ curl http://localhost:8000/2/3/\*
    The answer is 6
@@ -1301,14 +1329,6 @@ Breakpoint Commands
 .pdbrc
 ------
 
-.. only:: slides
-
-   * ``.pdbrc`` will be loaded from your home directory *and* current
-     directory
-   * Executed line by line in PDB
-   * Define aliases, common breakpoints, etc at startup
-   * Comments can be included with ``#``
-
 .. only:: not slides
 
    When PDB starts it looks for a ``.pdbrc`` file in the user's home
@@ -1319,6 +1339,14 @@ Breakpoint Commands
 
 .. literalinclude:: pdbrc
    :lines: 1-6
+
+.. only:: slides
+
+   * ``.pdbrc`` will be loaded from your home directory *and* current
+     directory
+   * Executed line by line in PDB
+   * Define aliases, common breakpoints, etc at startup
+   * Comments can be included with ``#``
 
 step-watch
 ----------
