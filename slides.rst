@@ -100,7 +100,7 @@ PDB: The Python Debugger
    when a crashing exception occurred.
 
 .. code-block:: none
-   :line-classes: 1(build-item-1),2-12(build-item-2),13-17(build-item-3)
+   :line-classes: 2-12(build-item-1),13-17(build-item-2)
    :emphasize-lines: 1,12,15-16
 
    >>> s = make_server('', 8000, pfcalc.rpn_app)
