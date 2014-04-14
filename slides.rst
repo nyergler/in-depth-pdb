@@ -71,7 +71,7 @@ PDB: The Python Debugger
    :emphasize-lines: 5-7
 
    >>> os.path.join('/Users', 'nathan')
-   > /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py(73)join()
+   > /.../python2.7/posixpath.py(73)join()
    -> path = a
    (Pdb) list
     68 B   def join(a, *p):
