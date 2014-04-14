@@ -292,6 +292,40 @@ PDB 101 Review
 * ``cont`` continue execution
 * Pressing Enter *repeats* previous command
 
+.. rst-class:: tip
+
+Asking for Help
+===============
+
+.. only:: not slides
+
+   The PDB prompt isn't the same as a Python prompt: you can do lots
+   of Python-like things there, but it has its own rules. It looks
+   confusing at first because it's optimized for speed once you know
+   how it works. And you can always *ask for help*.
+
+::
+
+   (Pdb) help
+
+   Documented commands (type help <topic>):
+   ========================================
+   EOF    bt         cont      enable  jump  pp       run      unt
+   a      c          continue  exit    l     q        s        until
+   alias  cl         d         h       list  quit     step     up
+   args   clear      debug     help    n     r        tbreak   w
+   b      commands   disable   ignore  next  restart  u        whatis
+   break  condition  down      j       p     return   unalias  where
+
+   Miscellaneous help topics:
+   ==========================
+   exec  pdb
+
+   Undocumented commands:
+   ======================
+   retval  rv
+
+
 .. rst-class:: segue dark
 
 Executing Code Under PDB
@@ -375,40 +409,6 @@ pdb.run
    > fibonacci.py(7)fib()
    -> if n <= 1:
    (Pdb)
-
-
-.. rst-class:: tip
-
-Asking for Help
-===============
-
-.. only:: not slides
-
-   The PDB prompt isn't the same as a Python prompt: you can do lots
-   of Python-like things there, but it has its own rules. It looks
-   confusing at first because it's optimized for speed once you know
-   how it works. And you can always *ask for help*.
-
-::
-
-   (Pdb) help
-
-   Documented commands (type help <topic>):
-   ========================================
-   EOF    bt         cont      enable  jump  pp       run      unt
-   a      c          continue  exit    l     q        s        until
-   alias  cl         d         h       list  quit     step     up
-   args   clear      debug     help    n     r        tbreak   w
-   b      commands   disable   ignore  next  restart  u        whatis
-   break  condition  down      j       p     return   unalias  where
-
-   Miscellaneous help topics:
-   ==========================
-   exec  pdb
-
-   Undocumented commands:
-   ======================
-   retval  rv
 
 
 .. rst-class:: segue dark
