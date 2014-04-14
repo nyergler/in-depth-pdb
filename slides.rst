@@ -1162,7 +1162,7 @@ Define aliases for frequently used commands.
    :emphasize-lines: 3
    :line-classes: 3-(build-item-2)
 
-   (Pdb) !self
+   (Pdb) p self
    <__main__.Calculator object at 0x7eff1e054790>
    (Pdb) dr self
    ['OPERATORS',
