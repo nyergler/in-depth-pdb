@@ -1,0 +1,1003 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>PDB: The Python Debugger &#8212; In Depth PDB</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">In Depth PDB</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=nyergler&repo=in-depth-pdb&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">In Depth PDB</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <h3>Slides</h3>
+  <ul class="this-page-menu">
+    <li><a href="./slides/slides.html"
+           rel="nofollow">View as slides</a></li>
+  </ul>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="admonition- content-flexbox content-vcenter dark"></span><div class="segue dark nobackground section" id="pdb-the-python-debugger">
+<h1>PDB: The Python Debugger<a class="headerlink" href="#pdb-the-python-debugger" title="Permalink to this headline">¶</a></h1>
+<p>Most developers have a preferred debugging strategy, and many of them
+are variations on the <code class="docutils literal notranslate"><span class="pre">print</span></code> statement. There’s nothing wrong with
+that, you can get a lot of information about what a program is doing
+by logging or printing information about its state.</p>
+<p>They fall short, however, in that you need to know what you want
+you’re looking for before you start: if you realize after seeing
+some data that what you really need to know if the state of some
+other variable, you usually need to change the print statements and
+restart execution.</p>
+<p>Debuggers – and PDB, in particular – are a more flexible tool for
+inspecting the state of a running program. PDB is built into
+Python, so if you’re using Python, you can already use it.</p>
+<p>With PDB you can inspect running code, and see what variables are
+set to.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt; pfcalc.py(28)push()
+-&gt; value = int(value_or_operator)
+<span class="hll">(Pdb) p value_or_operator
+</span><span class="hll">&#39;abc&#39;
+</span></pre></div>
+</div>
+<p>You can also look around code in the Python standard library. For
+example, if you wanted to know what <code class="docutils literal notranslate"><span class="pre">os.path.join</span></code> actually does,
+you can stop inside of it and look around. And you can do that
+<em>without editing the source file</em>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; os.path.join(&#39;/Users&#39;, &#39;nathan&#39;)
+&gt; /.../python2.7/posixpath.py(73)join()
+-&gt; path = a
+(Pdb) list
+<span class="hll"> 68 B   def join(a, *p):
+</span><span class="hll"> 69         &quot;&quot;&quot;Join two or more pathname components, inserting &#39;/&#39; as needed.
+</span><span class="hll"> 70         If any component is an absolute path, all previous path components
+</span> 71         will be discarded.  An empty last part will result in a path that
+ 72         ends with a separator.&quot;&quot;&quot;
+ 73  -&gt;     path = a
+ 74         for b in p:
+ 75             if b.startswith(&#39;/&#39;):
+ 76                 path = b
+ 77             elif path == &#39;&#39; or path.endswith(&#39;/&#39;):
+ 78                 path +=  b
+(Pdb) !a
+&#39;/Users&#39;
+(Pdb) !p
+(&#39;nathan&#39;,)
+</pre></div>
+</div>
+<p>You can also return to the scene of the proverbial crime using the
+post-mortem debugger. This feature of PDB let’s you inspect the
+state of your program – including the call stack – as it existed
+when a crashing exception occurred.</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">print</span></code> is great, if you know what you’re looking for. PDB
+is better. Reading this will show you how to use it to:</p>
+<ul class="build white larger simple">
+<li>Explore the state of a running program. Or a dead one.</li>
+<li>Repeatedly run a program to debug it</li>
+<li>Build the tools you need to extend it</li>
+</ul>
+</div>
+<div class="segue dark section" id="pdb-101">
+<h1>PDB 101<a class="headerlink" href="#pdb-101" title="Permalink to this headline">¶</a></h1>
+<p>Let’s start with the most common way people use PDB.</p>
+<div class="content-columns-2 snap section" id="explicit-trace-points">
+<h2>Explicit Trace Points<a class="headerlink" href="#explicit-trace-points" title="Permalink to this headline">¶</a></h2>
+<div class="sidebar">
+<p class="first sidebar-title">Trace Functions &amp; Debuggers</p>
+<p>So what is Python and the PDB module doing when you call
+<code class="docutils literal notranslate"><span class="pre">set_trace()</span></code>? CPython supports setting a system trace function,
+which supports the implementation of debuggers and other source
+analysis tools in Python itself. A trace function is registered for a
+specific thread, and is called when a stack frame is executed. Trace
+functions are registered using <code class="docutils literal notranslate"><span class="pre">sys.settrace</span></code>, and provide quite a
+bit of flexibility for introspecting what happens when a program is
+running.</p>
+<p class="last">See the <a class="reference external" href="http://docs.python.org/2/library/sys.html#sys.settrace">sys.settrace</a> documentation for details about writing a
+trace function.</p>
+</div>
+<div class="gutter column-break-before highlight-none notranslate"><div class="highlight"><pre><span></span>$ python fibonacci_trace.py 5
+&gt; fibonacci_trace.py(12)&lt;module&gt;()
+<span class="hll">-&gt; print (fib(int(sys.argv[-1])))
+</span>(Pdb)
+</pre></div>
+</div>
+<p>PDB stops the program immediately after the trace point.</p>
+<p>The PDB prompt – <code class="docutils literal notranslate"><span class="pre">(Pdb)</span></code> – shows the path of the current module
+(<code class="docutils literal notranslate"><span class="pre">fibonacci_trace.py</span></code> here), the line number (<code class="docutils literal notranslate"><span class="pre">12</span></code>), and the
+current line. It also shows the name of the function currently
+being executed, although in this case it’s just <code class="docutils literal notranslate"><span class="pre">&lt;module&gt;</span></code> since
+we’re at module level code.</p>
+<p>At the prompt you can enter one of the <a class="reference external" href="http://docs.python.org/2/library/pdb.html#debugger-commands">debugger commands</a>. You
+can gain a lot of understanding about code by simply following the
+execution path using the <code class="docutils literal notranslate"><span class="pre">next</span></code> and <code class="docutils literal notranslate"><span class="pre">step</span></code> commands.</p>
+</div>
+<div class="content-columns-2 snap section" id="next">
+<h2><code class="docutils literal notranslate"><span class="pre">next</span></code><a class="headerlink" href="#next" title="Permalink to this headline">¶</a></h2>
+<div class="gutter highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">def</span> <span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the n&#39;th fibonacci number.&quot;&quot;&quot;</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+<span class="hll">    <span class="k">print</span> <span class="p">(</span><span class="n">fib</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+</span></pre></div>
+</div>
+<div class="columns-break-before highlight-none notranslate"><div class="highlight"><pre><span></span>$ python fibonacci_trace.py 5
+&gt; fibonacci_trace.py(14)&lt;module&gt;()
+<span class="hll">-&gt; print (fib(sys.argv[-1]))
+</span>(Pdb) next
+8
+--Return--
+&gt; fibonacci_trace.py(14)&lt;module&gt;()-&gt;None
+-&gt; print (fib(sys.argv[-1]))
+(Pdb)
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">next</span></code> will execute the current line (including any calls it
+makes)</p>
+</div>
+<div class="content-columns-2 snap section" id="step">
+<h2><code class="docutils literal notranslate"><span class="pre">step</span></code><a class="headerlink" href="#step" title="Permalink to this headline">¶</a></h2>
+<div class="gutter highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="hll"><span class="k">def</span> <span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+</span>    <span class="sd">&quot;&quot;&quot;Return the n&#39;th fibonacci number.&quot;&quot;&quot;</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+<span class="hll">    <span class="k">print</span> <span class="p">(</span><span class="n">fib</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+</span></pre></div>
+</div>
+<div class="columns-break-before highlight-none notranslate"><div class="highlight"><pre><span></span>$ python fibonacci_trace.py 5
+&gt; fibonacci_trace.py(14)&lt;module&gt;()
+<span class="hll">-&gt; print (fib(sys.argv[-1]))
+</span>(Pdb) step
+--Call--
+<span class="hll">&gt; fibonacci_trace.py(3)fib()
+</span>-&gt; def fib(n):
+(Pdb)
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">step</span></code> will stop at the next statement (which may be inside a
+function call)</p>
+</div>
+<div class="content-columns-2 snap section" id="cont">
+<h2><code class="docutils literal notranslate"><span class="pre">cont</span></code><a class="headerlink" href="#cont" title="Permalink to this headline">¶</a></h2>
+<div class="gutter highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">def</span> <span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the n&#39;th fibonacci number.&quot;&quot;&quot;</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">fib</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+</div>
+<div class="columns-break-before highlight-none notranslate"><div class="highlight"><pre><span></span>$ python fibonacci_trace.py 5
+&gt; fibonacci_trace.py(14)&lt;module&gt;()
+-&gt; print (fib(sys.argv[-1]))
+(Pdb) step
+--Call--
+&gt; fibonacci_trace.py(3)fib()
+-&gt; def fib(n):
+<span class="hll">(Pdb) cont
+</span>8
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">cont</span></code> will leave the debugger and let your program <strong>continue</strong>
+executing</p>
+</div>
+<div class="section" id="pdb-101-review">
+<h2>PDB 101 Review<a class="headerlink" href="#pdb-101-review" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">next</span></code> executes the current line</li>
+<li><code class="docutils literal notranslate"><span class="pre">step</span></code> executes the current line, stop ASAP</li>
+<li><code class="docutils literal notranslate"><span class="pre">cont</span></code> continue execution</li>
+<li>Pressing Enter <em>repeats</em> previous command</li>
+</ul>
+</div>
+</div>
+<div class="tip section" id="asking-for-help">
+<h1>Asking for Help<a class="headerlink" href="#asking-for-help" title="Permalink to this headline">¶</a></h1>
+<p>The PDB prompt isn’t the same as a Python prompt: you can do lots
+of Python-like things there, but it has its own rules. It looks
+confusing at first because it’s optimized for speed once you know
+how it works. And you can always <em>ask for help</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">help</span>
+
+<span class="n">Documented</span> <span class="n">commands</span> <span class="p">(</span><span class="nb">type</span> <span class="n">help</span> <span class="o">&lt;</span><span class="n">topic</span><span class="o">&gt;</span><span class="p">):</span>
+<span class="o">========================================</span>
+<span class="n">EOF</span>    <span class="n">bt</span>         <span class="n">cont</span>      <span class="n">enable</span>  <span class="n">jump</span>  <span class="n">pp</span>       <span class="n">run</span>      <span class="n">unt</span>
+<span class="n">a</span>      <span class="n">c</span>          <span class="k">continue</span>  <span class="nb">exit</span>    <span class="n">l</span>     <span class="n">q</span>        <span class="n">s</span>        <span class="n">until</span>
+<span class="n">alias</span>  <span class="n">cl</span>         <span class="n">d</span>         <span class="n">h</span>       <span class="nb">list</span>  <span class="n">quit</span>     <span class="n">step</span>     <span class="n">up</span>
+<span class="n">args</span>   <span class="n">clear</span>      <span class="n">debug</span>     <span class="n">help</span>    <span class="n">n</span>     <span class="n">r</span>        <span class="n">tbreak</span>   <span class="n">w</span>
+<span class="n">b</span>      <span class="n">commands</span>   <span class="n">disable</span>   <span class="n">ignore</span>  <span class="nb">next</span>  <span class="n">restart</span>  <span class="n">u</span>        <span class="n">whatis</span>
+<span class="k">break</span>  <span class="n">condition</span>  <span class="n">down</span>      <span class="n">j</span>       <span class="n">p</span>     <span class="k">return</span>   <span class="n">unalias</span>  <span class="n">where</span>
+
+<span class="n">Miscellaneous</span> <span class="n">help</span> <span class="n">topics</span><span class="p">:</span>
+<span class="o">==========================</span>
+<span class="k">exec</span>  <span class="n">pdb</span>
+
+<span class="n">Undocumented</span> <span class="n">commands</span><span class="p">:</span>
+<span class="o">======================</span>
+<span class="n">retval</span>  <span class="n">rv</span>
+</pre></div>
+</div>
+</div>
+<div class="segue dark section" id="executing-code-under-pdb">
+<h1>Executing Code Under PDB<a class="headerlink" href="#executing-code-under-pdb" title="Permalink to this headline">¶</a></h1>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">set_trace</span></code> may be the most common way to enter PDB, but
+it is definitely not the only way. The PDB module provides several
+ways to enter the debugger; we’ll look at the main ones, and then
+focus on two.</p>
+<div class="section" id="running-pdb-as-a-script">
+<h2>Running PDB as a Script<a class="headerlink" href="#running-pdb-as-a-script" title="Permalink to this headline">¶</a></h2>
+<p>PDB can by run as a Python module using <code class="docutils literal notranslate"><span class="pre">-m</span></code> command line parameter
+to Python. In this mode, additional arguments are interpreted as the
+program to run under PDB.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>$ python -m pdb samples/fibonacci.py 5
+&gt; fibonacci.py(1)&lt;module&gt;()
+-&gt; import sys
+(Pdb)
+</pre></div>
+</div>
+<p>This will drop us into PDB immediately, allowing us to set
+breakpoints, examine initial state, etc. Note that the current line
+is the first <code class="docutils literal notranslate"><span class="pre">import</span></code> in the file:: this is because when running
+as a module, PDB stops execution before the program begins.</p>
+<p>When your program ends, it will automatically be restarted for
+another run.</p>
+<p>It’s entirely possible to run your Django app under PDB:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>$ python -m pdb django runserver --settings=pdbdemo.settings
+</pre></div>
+</div>
+<p>If you want to set a low level breakpoint in your application,
+that’s a good way to get the PDB console before anything happens.</p>
+</div>
+<div class="section" id="pdb-run">
+<h2>pdb.run<a class="headerlink" href="#pdb-run" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">pdb</span></code> module provides three ways to directly execute code
+under control of the debugger. These run methods also allow you to
+specify the global and local context for statements and
+expressions. I use these methods far less than other PDB utilities,
+but they’re useful for very fine grained testing and introspection.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pdb.run</span></code> and <code class="docutils literal notranslate"><span class="pre">pdb.runeval</span></code> execute a Python statement or
+expression, respectively, under control of the debugger. The code
+under test is provided as a string, along with option dictionaries
+specifying the global and local environment.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdb</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;fib(&#39;25&#39;)&quot;</span><span class="p">)</span>
+<span class="go">&gt; &lt;string&gt;(1)&lt;module&gt;()</span>
+<span class="go">(Pdb)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdb</span><span class="o">.</span><span class="n">runcall</span><span class="p">(</span><span class="n">fib</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+<span class="go">&gt; fibonacci.py(7)fib()</span>
+<span class="go">-&gt; if n &lt;= 1:</span>
+<span class="go">(Pdb)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="segue dark section" id="debugging-with-pdb">
+<h1>Debugging with PDB<a class="headerlink" href="#debugging-with-pdb" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="http-maths">
+<h2>HTTP Maths<a class="headerlink" href="#http-maths" title="Permalink to this headline">¶</a></h2>
+<p>Consider a small web application that provides a <a class="reference external" href="http://en.wikipedia.org/wiki/Postfix_notation">postfix notation</a>
+calculator. You pass your arguments as path elements, and it applies
+them to the stack and returns the result.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ curl &quot;http://localhost:8000/2/1/+&quot;
+The answer is 3
+$ curl &quot;http://localhost:8000/2/10/*&quot;
+The answer is 20
+curl &quot;http://localhost:8000/2/10/+/2/*&quot;
+The answer is 24
+</pre></div>
+</div>
+<p>It’s cool, but not great with unexpected input.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>$ curl http://localhost:8000/2/abc/+/
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Traceback (most recent call last):
+  ...
+  File &quot;pfcalc_wsgi.py&quot;, line 39, in handle
+    handler.run(self.server.get_app())
+  File &quot;pfcalc_wsgi.py&quot;, line 17, in run
+    self.result = application(self.environ, self.start_response)
+  File &quot;pfcalc.py&quot;, line 46, in rpn_app
+    c.push(element)
+  File &quot;pfcalc.py&quot;, line 28, in push
+    value = int(value_or_operator)
+<span class="hll">ValueError: invalid literal for int() with base 10: &#39;abc&#39;
+</span></pre></div>
+</div>
+<p>We can run it under <code class="docutils literal notranslate"><span class="pre">pdb</span></code> to see what’s actually happening when it
+blows up.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pdb</span> <span class="n">pfcalc</span><span class="o">.</span><span class="n">py</span>
+<span class="o">&gt;</span> <span class="n">pfcalc</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="kn">from</span> <span class="nn">wsgiref.simple_server</span> <span class="kn">import</span> <span class="n">make_server</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">cont</span>
+<span class="n">Serving</span> <span class="n">on</span> <span class="n">port</span> <span class="mf">8000.</span><span class="o">..</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>$ curl http://localhost:8000/2/abc/+
+</pre></div>
+</div>
+<p>Now when we hit the bad URL with <code class="docutils literal notranslate"><span class="pre">curl</span></code>, Python drops into PDB.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>$ curl http://localhost:8000/2/abc/+/
+</pre></div>
+</div>
+</div>
+<div class="build-item-1 section" id="inspecting-state">
+<h2>Inspecting State<a class="headerlink" href="#inspecting-state" title="Permalink to this headline">¶</a></h2>
+<p>Entering the debugger is only interesting if you can actually use it
+to figure out what’s going on in a program, so let’s talk about how
+you interact with locals inside of the debugger.</p>
+<p>There are two debugger commands that are useful for inspecting values
+in the debugger:: <code class="docutils literal notranslate"><span class="pre">p</span></code> and <code class="docutils literal notranslate"><span class="pre">pp</span></code> will print and
+“pretty-print” a value, respectively.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">pfcalc</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span><span class="n">push</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value_or_operator</span><span class="p">)</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">p</span> <span class="n">value_or_operator</span>
+<span class="s1">&#39;abc&#39;</span>
+</pre></div>
+</div>
+<p>You can also look at what arguments were passed to the current
+function using <code class="docutils literal notranslate"><span class="pre">args</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">args</span>
+<span class="bp">self</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">__main__</span><span class="o">.</span><span class="n">Calculator</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x1047bff10</span><span class="o">&gt;</span>
+<span class="n">value_or_operator</span> <span class="o">=</span> <span class="n">abc</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="listing-code">
+<h2>Listing Code<a class="headerlink" href="#listing-code" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="nb">list</span>
+ <span class="mi">23</span>                      <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPERATORS</span><span class="p">[</span><span class="n">value_or_operator</span><span class="p">](</span>
+ <span class="mi">24</span>                          <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span>
+ <span class="mi">25</span>                          <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span>
+ <span class="mi">26</span>                      <span class="p">)</span>
+ <span class="mi">27</span>                  <span class="k">else</span><span class="p">:</span>
+ <span class="mi">28</span>  <span class="o">-&gt;</span>                  <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value_or_operator</span><span class="p">)</span>
+ <span class="mi">29</span>
+ <span class="mi">30</span>                  <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+ <span class="mi">31</span>
+ <span class="mi">32</span>              <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+ <span class="mi">33</span>
+</pre></div>
+</div>
+<p class="span-columns">Python 3.2 added the long list (<code class="docutils literal notranslate"><span class="pre">ll</span></code>) command, which lets you see
+the entire function.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(Pdb) list
+
+
+
+ 22             value = self.OPERATORS[value_or_operator](
+ 23                 self.state.pop(),
+ 24                 self.state.pop(),
+ 25             )
+ 26         else:
+ 27  -&gt;         value = int(value_or_operator)
+ 28
+ 29         self.state.append(value)
+ 30
+ 31     def result(self):
+ 32
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(Pdb) ll
+ 19     def push(self, value_or_operator):
+ 20
+ 21         if value_or_operator in self.OPERATORS:
+ 22             value = self.OPERATORS[value_or_operator](
+ 23                 self.state.pop(),
+ 24                 self.state.pop(),
+ 25             )
+ 26         else:
+ 27  -&gt;         value = int(value_or_operator)
+ 28
+ 29         self.state.append(value)
+</pre></div>
+</div>
+</div>
+<div class="section" id="pretty-print">
+<h2>Pretty Print<a class="headerlink" href="#pretty-print" title="Permalink to this headline">¶</a></h2>
+<p>You can pretty print the value of a variable using the <code class="docutils literal notranslate"><span class="pre">pp</span></code> command.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">p</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPERATORS</span>
+<span class="p">{</span><span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">slot</span> <span class="n">wrapper</span> <span class="s1">&#39;__mul__&#39;</span> <span class="n">of</span> <span class="s1">&#39;int&#39;</span> <span class="n">objects</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">slot</span> <span class="n">wrapper</span> <span class="s1">&#39;__add__&#39;</span> <span class="n">of</span> <span class="s1">&#39;int&#39;</span> <span class="n">objects</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">slot</span> <span class="n">wrapper</span> <span class="s1">&#39;__div__&#39;</span> <span class="n">of</span> <span class="s1">&#39;int&#39;</span> <span class="n">objects</span><span class="o">&gt;</span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">pp</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPERATORS</span>
+<span class="p">{</span><span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">slot</span> <span class="n">wrapper</span> <span class="s1">&#39;__mul__&#39;</span> <span class="n">of</span> <span class="s1">&#39;int&#39;</span> <span class="n">objects</span><span class="o">&gt;</span><span class="p">,</span>
+ <span class="s1">&#39;+&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">slot</span> <span class="n">wrapper</span> <span class="s1">&#39;__add__&#39;</span> <span class="n">of</span> <span class="s1">&#39;int&#39;</span> <span class="n">objects</span><span class="o">&gt;</span><span class="p">,</span>
+ <span class="s1">&#39;/&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">slot</span> <span class="n">wrapper</span> <span class="s1">&#39;__div__&#39;</span> <span class="n">of</span> <span class="s1">&#39;int&#39;</span> <span class="n">objects</span><span class="o">&gt;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="evaluating-expressions">
+<h2>Evaluating Expressions<a class="headerlink" href="#evaluating-expressions" title="Permalink to this headline">¶</a></h2>
+<p>You can also evaluate expressions using the <code class="docutils literal notranslate"><span class="pre">!</span></code> command.</p>
+<p>Most PDB commands have a short and long form. For example, <code class="docutils literal notranslate"><span class="pre">next</span></code>
+can be abbreviated as <code class="docutils literal notranslate"><span class="pre">n</span></code>. Check the <a class="reference external" href="http://docs.python.org/2/library/pdb.html#debugger-commands">debugger command</a>
+reference for details.</p>
+<p>Note that this short form is a good reason to use <code class="docutils literal notranslate"><span class="pre">!</span></code> to denote
+Python expressions: input that could either be an expression or a
+debugger command is evaluated as the latter. It’s frustrating to
+expect to evaluate a variable named <code class="docutils literal notranslate"><span class="pre">c</span></code> and wind up exiting the
+debugger and continuing instead.</p>
+<div class="build-item-1 highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+
+    <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">+</span> <span class="n">c</span>
+</pre></div>
+</div>
+<div class="admonition-interact admonition">
+<p class="first admonition-title"><code class="docutils literal notranslate"><span class="pre">interact</span></code></p>
+<p class="last">New in Python 3.2, the <code class="docutils literal notranslate"><span class="pre">interact</span></code> command gives you an
+interactive prompt with the same locals and globals as the current
+position. This makes it easier to evaluate expressions and explore
+the current position in the code.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">interact</span>
+<span class="o">*</span><span class="n">interactive</span><span class="o">*</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="n">dict_keys</span><span class="p">([</span><span class="s1">&#39;make_server&#39;</span><span class="p">,</span> <span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;httpd&#39;</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="s1">&#39;__builtins__&#39;</span><span class="p">,</span> <span class="s1">&#39;CalculatorWSGIHandler&#39;</span><span class="p">,</span> <span class="s1">&#39;__file__&#39;</span><span class="p">,</span> <span class="s1">&#39;value_or_operator&#39;</span><span class="p">,</span> <span class="s1">&#39;CalculatorServer&#39;</span><span class="p">,</span> <span class="s1">&#39;Calculator&#39;</span><span class="p">,</span> <span class="s1">&#39;rpn_app&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="segue dark section" id="navigating-execution">
+<h1>Navigating Execution<a class="headerlink" href="#navigating-execution" title="Permalink to this headline">¶</a></h1>
+<p>Let’s consider another example where our calculator isn’t so hot.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>$ curl http://localhost:8000/2/3/+/5
+</pre></div>
+</div>
+<div class="build-item-1 highlight-none notranslate"><div class="highlight"><pre><span></span>Traceback (most recent call last):
+  ...
+  File &quot;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py&quot;, line 649, in __init__
+    self.handle()
+  File &quot;pfcalc_wsgi.py&quot;, line 17, in run
+    self.result = application(self.environ, self.start_response)
+  File &quot;pfcalc.py&quot;, line 54, in rpn_app
+    &quot;The answer is %d&quot; % (c.result(),),
+  File &quot;pfcalc.py&quot;, line 36, in result
+    raise SyntaxError(&quot;Invalid expression.&quot;)
+SyntaxError: Invalid expression.
+&gt; pfcalc.py(36)result()
+-&gt; raise SyntaxError(&quot;Invalid expression.&quot;)
+(Pdb)
+</pre></div>
+</div>
+<div class="section" id="where-am-i">
+<h2>Where am I?<a class="headerlink" href="#where-am-i" title="Permalink to this headline">¶</a></h2>
+<p>Once inside the debugger, it’s useful to be able to figure out
+where you are in the call stack. The <code class="docutils literal notranslate"><span class="pre">where</span></code> command prints the
+stack trace with the most recent call last.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">where</span></code> command shows the call stack that got us into this mess.</p>
+</div>
+<div class="section" id="navigating-the-stack">
+<h2>Navigating the Stack<a class="headerlink" href="#navigating-the-stack" title="Permalink to this headline">¶</a></h2>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">up</span></code> command to move one frame up the stack.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">up</span>
+<span class="o">&gt;</span> <span class="n">pfcalc</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">54</span><span class="p">)</span><span class="n">rpn_app</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="s2">&quot;The answer is </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">result</span><span class="p">(),),</span>
+</pre></div>
+</div>
+<p>PDB shows that the current position is now the call to <code class="docutils literal notranslate"><span class="pre">result</span></code>.</p>
+<p>Other PDB commands operate in the context of the current position.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="nb">list</span>
+ <span class="mi">49</span>              <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">)]</span>
+ <span class="mi">50</span>
+ <span class="mi">51</span>              <span class="n">start_response</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+ <span class="mi">52</span>
+ <span class="mi">53</span>              <span class="k">return</span> <span class="p">[</span>
+ <span class="mi">54</span>  <span class="o">-&gt;</span>              <span class="s2">&quot;The answer is </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">result</span><span class="p">(),),</span>
+ <span class="mi">55</span>              <span class="p">]</span>
+ <span class="mi">56</span>
+ <span class="mi">57</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="segue dark section" id="post-mortem-debugging">
+<h1>Post-Mortem Debugging<a class="headerlink" href="#post-mortem-debugging" title="Permalink to this headline">¶</a></h1>
+<p>We’ve been running the server using the PDB module:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>$ python -m pdb pfcalc.py
+</pre></div>
+</div>
+<p>Executing your program using the <code class="docutils literal notranslate"><span class="pre">pdb</span></code> module uses the <em>post-mortem</em>
+debugger. The post-mortem debugger uses <code class="docutils literal notranslate"><span class="pre">sys.last_exception</span></code> to
+figure out where to start debugging.</p>
+<p>Our server starts with the following lines:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">httpd</span> <span class="o">=</span> <span class="n">make_server</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+    <span class="mi">8000</span><span class="p">,</span> <span class="n">rpn_app</span><span class="p">,</span>
+    <span class="n">server_class</span><span class="o">=</span><span class="n">CalculatorServer</span><span class="p">,</span>
+    <span class="n">handler_class</span><span class="o">=</span><span class="n">CalculatorWSGIHandler</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">print</span> <span class="s2">&quot;Serving on port 8000...&quot;</span>
+<span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="span-columns">The post-mortem debugger acts as a top-level exception handler.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">httpd</span> <span class="o">=</span> <span class="n">make_server</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+    <span class="mi">8000</span><span class="p">,</span> <span class="n">rpn_app</span><span class="p">,</span>
+    <span class="n">server_class</span><span class="o">=</span><span class="n">CalculatorServer</span><span class="p">,</span>
+    <span class="n">handler_class</span><span class="o">=</span><span class="n">CalculatorWSGIHandler</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">print</span> <span class="s2">&quot;Serving on port 8000...&quot;</span>
+<span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+  <span class="n">httpd</span> <span class="o">=</span> <span class="n">make_server</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+      <span class="mi">8000</span><span class="p">,</span> <span class="n">rpn_app</span><span class="p">,</span>
+      <span class="n">server_class</span><span class="o">=</span><span class="n">CalculatorServer</span><span class="p">,</span>
+      <span class="n">handler_class</span><span class="o">=</span><span class="n">CalculatorWSGIHandler</span><span class="p">,</span>
+  <span class="p">)</span>
+  <span class="k">print</span> <span class="s2">&quot;Serving on port 8000...&quot;</span>
+  <span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+<span class="k">except</span><span class="p">:</span>
+  <span class="kn">import</span> <span class="nn">pdb</span>
+
+  <span class="c1"># debug the exception being handled</span>
+  <span class="n">pdb</span><span class="o">.</span><span class="n">post_mortem</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>You can imagine writing this using an explicit <code class="docutils literal notranslate"><span class="pre">set_trace()</span></code>
+instead.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+  <span class="n">httpd</span> <span class="o">=</span> <span class="n">make_server</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="n">rpn_app</span><span class="p">,</span>
+                      <span class="n">server_class</span><span class="o">=</span><span class="n">CalculatorServer</span><span class="p">,</span>
+                      <span class="n">handler_class</span><span class="o">=</span><span class="n">CalculatorWSGIHandler</span><span class="p">,</span>
+  <span class="p">)</span>
+  <span class="k">print</span> <span class="s2">&quot;Serving on port 8000...&quot;</span>
+  <span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+<span class="k">except</span><span class="p">:</span>
+  <span class="kn">import</span> <span class="nn">pdb</span>
+  <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If we run this version of the server and trigger an error, the
+difference will be obvious.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>$ curl http://localhost:8000/2/3/+/5
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>$ python pf_settrace.py
+--Return--
+&gt; pf_settrace.py(15)&lt;module&gt;()-&gt;None
+-&gt; pdb.set_trace()
+(Pdb)
+</pre></div>
+</div>
+<p>As you can see, when <code class="docutils literal notranslate"><span class="pre">set_trace</span></code> enters the debugger, you don’t have
+any of the exception context. The error has already happened, and
+you’re too late. <code class="docutils literal notranslate"><span class="pre">set_trace</span></code> is useful when you want to pause
+execution and look around, but not when you’re catching an exception.</p>
+</div>
+<div class="segue dark section" id="breakpoints">
+<h1>Breakpoints<a class="headerlink" href="#breakpoints" title="Permalink to this headline">¶</a></h1>
+<p>So far we’ve primarily looked at entering the debugger explicitly
+(<code class="docutils literal notranslate"><span class="pre">set_trace</span></code>) and invoking the post-mortem debugger on exception
+(<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pdb</span></code>). Of course it’d be nice to start the debugger
+<em>before</em> we run into trouble.</p>
+<p><strong>PDB breakpoints let you enter the debugger at a specific point
+without modifying the source code.</strong></p>
+<div class="content-columns-2 section" id="setting-breakpoints">
+<h2>Setting Breakpoints<a class="headerlink" href="#setting-breakpoints" title="Permalink to this headline">¶</a></h2>
+<p>A breakpoint is set using the <code class="docutils literal notranslate"><span class="pre">break</span></code> command. For example, if we
+want to inspect the path handling portion of our calculator, we might
+want to enter the debugger when <code class="docutils literal notranslate"><span class="pre">rpn_app</span></code> is called:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="k">def</span> <span class="nf">rpn_app</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Calculator</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH_INFO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+    <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;200 OK&#39;</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">)]</span>
+
+    <span class="n">start_response</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="s2">&quot;The answer is </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">result</span><span class="p">(),),</span>
+    <span class="p">]</span>
+</pre></div>
+</div>
+<p>We can do this with a breakpoint.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python -m pdb pfcalc.py
+&gt; pfcalc.py<span class="o">(</span><span class="m">1</span><span class="o">)</span>&lt;module&gt;<span class="o">()</span>
+-&gt; from wsgiref.simple_server import make_server
+<span class="hll"><span class="o">(</span>Pdb<span class="o">)</span> <span class="nb">break</span> pfcalc.rpn_app
+</span>Breakpoint <span class="m">1</span> at pfcalc.py:41
+</pre></div>
+</div>
+</div>
+<div class="content-columns-2 section" id="id1">
+<h2>Setting Breakpoints<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="k">def</span> <span class="nf">rpn_app</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Calculator</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH_INFO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+    <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;200 OK&#39;</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">)]</span>
+
+    <span class="n">start_response</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="s2">&quot;The answer is </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">result</span><span class="p">(),),</span>
+    <span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python -m pdb pfcalc.py
+&gt; pfcalc.py<span class="o">(</span><span class="m">1</span><span class="o">)</span>&lt;module&gt;<span class="o">()</span>
+-&gt; from wsgiref.simple_server import make_server
+<span class="hll"><span class="o">(</span>Pdb<span class="o">)</span> <span class="nb">break</span> pfcalc.py:41
+</span>Breakpoint <span class="m">1</span> at pfcalc.py:41
+<span class="o">(</span>Pdb<span class="o">)</span> cont
+</pre></div>
+</div>
+<p class="span-columns">You can also give it a filename and a line number.</p>
+<p class="span-columns">Note that we then exit the debugger by telling it to <code class="docutils literal notranslate"><span class="pre">cont</span></code>inue.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">break</span></code> command takes an argument which tells it where to break.
+In this case it’s a <code class="docutils literal notranslate"><span class="pre">module.callable</span></code> dotted path. It prints out
+where the breakpoint was set, and the breakpoint number (<strong>1</strong> in this
+example).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">help</span> <span class="k">break</span>
+<span class="n">b</span><span class="p">(</span><span class="n">reak</span><span class="p">)</span> <span class="p">([</span><span class="nb">file</span><span class="p">:]</span><span class="n">lineno</span> <span class="o">|</span> <span class="n">function</span><span class="p">)</span> <span class="p">[,</span> <span class="n">condition</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>If we make a request to our application, we’ll see it drop into PDB.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>$ curl http://localhost:8000/2/3/+
+</pre></div>
+</div>
+<div class="build-item-1 highlight-python notranslate"><div class="highlight"><pre><span></span>&gt; pfcalc.py(43)rpn_app()
+-&gt; c = Calculator()
+(Pdb) n
+&gt; pfcalc.py(45)rpn_app()
+(Pdb) !environ[&#39;PATH_INFO&#39;]
+&#39;/2/3/+&#39;
+</pre></div>
+</div>
+<p>Issuing the <code class="docutils literal notranslate"><span class="pre">break</span></code> command without any arguments will report on the
+defined breakpoints:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="k">break</span>
+<span class="n">Num</span> <span class="n">Type</span>         <span class="n">Disp</span> <span class="n">Enb</span>   <span class="n">Where</span>
+<span class="mi">1</span>   <span class="n">breakpoint</span>   <span class="n">keep</span> <span class="n">yes</span>   <span class="n">at</span> <span class="n">pfcalc</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">41</span>
+        <span class="n">breakpoint</span> <span class="n">already</span> <span class="n">hit</span> <span class="mi">1</span> <span class="n">times</span>
+</pre></div>
+</div>
+<p>Note that breakpoints are <em>thread specific</em>. This means that when
+using the Django <code class="docutils literal notranslate"><span class="pre">runserver</span></code> command, you need to disable the
+threaded features. <code class="docutils literal notranslate"><span class="pre">--nothreading</span> <span class="pre">--noreload</span></code> disables the reload
+watcher and threading.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A variant of the <code class="docutils literal notranslate"><span class="pre">break</span></code> command, <code class="docutils literal notranslate"><span class="pre">tbreak</span></code>, takes the same
+arguments, but creates a temporary breakpoint, which is cleared
+after the first hit.</p>
+</div>
+<p>If you press Ctrl-C, the program will restart since we’re running
+under the PDB module. The breakpoint is still active.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="k">break</span>
+<span class="n">Num</span> <span class="n">Type</span>         <span class="n">Disp</span> <span class="n">Enb</span>   <span class="n">Where</span>
+<span class="mi">1</span>   <span class="n">breakpoint</span>   <span class="n">keep</span> <span class="n">yes</span>   <span class="n">at</span> <span class="n">pfcalc</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">41</span>
+        <span class="n">breakpoint</span> <span class="n">already</span> <span class="n">hit</span> <span class="mi">4</span> <span class="n">times</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="manipulating-breakpoints">
+<h2>Manipulating Breakpoints<a class="headerlink" href="#manipulating-breakpoints" title="Permalink to this headline">¶</a></h2>
+<p>The breakpoint number (<code class="docutils literal notranslate"><span class="pre">1</span></code>) above can be used to control its
+behavior with the following commands:</p>
+<ul>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">disable</span> <span class="pre">[bpnum]</span></code></p>
+<p>Disables the given breakpoint. The breakpoint remains set, but will
+not be triggered when the line is encountered.</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">enable</span> <span class="pre">[bpnum]</span></code></p>
+<p>Enables the given breakpoint.</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">ignore</span> <span class="pre">bpnum</span> <span class="pre">[count]</span></code></p>
+<p>Ignore a breakpoint for [count] hits.</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">clear</span> <span class="pre">[bpnum]</span></code></p>
+<p>Clears the breakpoints specified. If no breakpoints are specified,
+prompt to clear all breakpoints.</p>
+</li>
+</ul>
+</div>
+<div class="content-flexbox content-vcenter content-big-example section" id="breakpoint-conditions">
+<h2>Breakpoint Conditions<a class="headerlink" href="#breakpoint-conditions" title="Permalink to this headline">¶</a></h2>
+<p>You may have noticed that the <code class="docutils literal notranslate"><span class="pre">break</span></code> command has this optional
+<code class="docutils literal notranslate"><span class="pre">condition</span></code> parameter at the end.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">help</span> <span class="k">break</span>
+<span class="n">b</span><span class="p">(</span><span class="n">reak</span><span class="p">)</span> <span class="p">([</span><span class="nb">file</span><span class="p">:]</span><span class="n">lineno</span> <span class="o">|</span> <span class="n">function</span><span class="p">)</span> <span class="p">[,</span> <span class="n">condition</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>You can also specify a condition for a breakpoint. When the breakpoint
+is encountered, the condition is evaluated. If it evaluates True, you
+enter the debugger. A condition can be specified as the final argument
+to the <code class="docutils literal notranslate"><span class="pre">break</span></code> command. It can also be set (or changed) later with
+the <code class="docutils literal notranslate"><span class="pre">condition</span></code> command.</p>
+<p>Our calculator expects that it will receive GET requests, and we
+can place a breakpoint that only fires when it gets something else.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ python -m pdb pfcalc.py
+&gt; pfcalc.py(1)&lt;module&gt;()
+-&gt; from wsgiref.simple_server import make_server
+<span class="hll">(Pdb) break pfcalc.rpn_app, environ[&#39;REQUEST_METHOD&#39;] != &#39;GET&#39;
+</span>Breakpoint 1 at pfcalc.py:40
+(Pdb)
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ python -m pdb pfcalc.py
+&gt; pfcalc.py(1)&lt;module&gt;()
+-&gt; from wsgiref.simple_server import make_server
+(Pdb) break pfcalc.rpn_app, environ[&#39;REQUEST_METHOD&#39;] != &#39;GET&#39;
+Breakpoint 1 at pfcalc.py:40
+<span class="hll">(Pdb) break
+</span><span class="hll">Num Type         Disp Enb   Where
+</span><span class="hll">1   breakpoint   keep yes   at pfcalc.py:40
+</span><span class="hll">        stop only if environ[&#39;REQUEST_METHOD&#39;] != &#39;GET&#39;
+</span>(Pdb) cont
+Serving on port 8000...
+</pre></div>
+</div>
+</div>
+</div>
+<div class="segue dark section" id="extending-pdb">
+<h1>Extending PDB<a class="headerlink" href="#extending-pdb" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="aliases">
+<h2>Aliases<a class="headerlink" href="#aliases" title="Permalink to this headline">¶</a></h2>
+<p>Define aliases for frequently used commands.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">alias</span> <span class="n">dr</span> <span class="n">pp</span> <span class="nb">dir</span><span class="p">(</span><span class="o">%</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">alias</span> <span class="n">loc</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="build-item-1 highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">loc</span>
+<span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;start_response&#39;</span><span class="p">,</span> <span class="s1">&#39;element&#39;</span><span class="p">,</span> <span class="s1">&#39;headers&#39;</span><span class="p">,</span> <span class="s1">&#39;environ&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">alias</span> <span class="n">printdict</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="o">%</span><span class="mf">1.</span><span class="n">items</span><span class="p">():</span> <span class="k">print</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+<span class="n">alias</span> <span class="n">pd</span> <span class="n">printdict</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Aliases can refer to other aliases</li>
+<li>Arguments are always passed on</li>
+</ul>
+<p>Will create a <code class="docutils literal notranslate"><span class="pre">printdict</span></code> command. <code class="docutils literal notranslate"><span class="pre">%1</span></code> will replaced by the first
+parameter to the command.</p>
+</div>
+<div class="section" id="combining-aliases">
+<h2>Combining Aliases<a class="headerlink" href="#combining-aliases" title="Permalink to this headline">¶</a></h2>
+<p>Aliases can reference other aliased commands, allowing you to compose
+more powerful commands.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">alias</span> <span class="n">cookies</span> <span class="n">printdict</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;request&#39;</span><span class="p">,</span> <span class="o">%</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;COOKIES&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="breakpoint-commands">
+<h2>Breakpoint Commands<a class="headerlink" href="#breakpoint-commands" title="Permalink to this headline">¶</a></h2>
+<p>PDB also allows you to specify commands to execute when a breakpoint
+is triggered. This allows you to automatically execute any PDB command
+when a breakpoint is encountered, including things like changing the
+ignore count, disabling or enabling other breakpoints, or printing the
+value of a variable.</p>
+<p>Consider the situation where it’d be helpful to display the value of a
+variable when a request comes in: you don’t necessarily want to set a
+breakpoint, you’d just like to see it in the console as you’re
+working. You can do this using breakpoint commands.</p>
+<p>First, start the program under PDB and set the breakpoint like you
+normally would:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ python -m pdb pfcalc.py
+&gt; pfcalc.py(1)&lt;module&gt;()
+-&gt; from wsgiref.simple_server import make_server
+<span class="hll">(Pdb) break pfcalc.py:21
+</span>Breakpoint 1 at pfcalc.py:21
+</pre></div>
+</div>
+<p>Now set the commands to execute when breakpoint <code class="docutils literal notranslate"><span class="pre">1</span></code> is hit:</p>
+<p>You can see the prompt changes from <code class="docutils literal notranslate"><span class="pre">(Pdb)</span></code> to <code class="docutils literal notranslate"><span class="pre">(com)</span></code> when
+entering commands. The command entry is terminated when you type
+<code class="docutils literal notranslate"><span class="pre">end</span></code> or any PDB command that resumes execution (<code class="docutils literal notranslate"><span class="pre">cont</span></code> in this
+case).</p>
+<p>If we continue execution and make a couple requests, we’ll see the
+commands in action.</p>
+<p>Note that the normal breakpoint message is still printed unless we
+use the <code class="docutils literal notranslate"><span class="pre">silent</span></code> command in our list of breakpoint commands.</p>
+<p>See the <a class="reference external" href="http://docs.python.org/2/library/pdb.html#debugger-commands">command reference</a> for details.</p>
+</div>
+<div class="section" id="pdbrc">
+<h2>.pdbrc<a class="headerlink" href="#pdbrc" title="Permalink to this headline">¶</a></h2>
+<p>When PDB starts it looks for a <code class="docutils literal notranslate"><span class="pre">.pdbrc</span></code> file in the user’s home
+directory and the current directory (if both are found, the current
+directory file is loaded after the one in the home directory). The
+contents of the <code class="docutils literal notranslate"><span class="pre">.pdbrc</span></code> is executed as if it’d been typed into the
+PDB prompt.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Aliases for looking around</span>
+<span class="n">alias</span> <span class="n">d</span> <span class="n">pp</span> <span class="nb">dir</span><span class="p">(</span><span class="o">%</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">alias</span> <span class="n">loc</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="n">alias</span> <span class="n">printdict</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="o">%</span><span class="mf">1.</span><span class="n">items</span><span class="p">():</span> <span class="k">print</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+<span class="n">alias</span> <span class="n">pd</span> <span class="n">printdict</span>
+
+</pre></div>
+</div>
+</div>
+<div class="section" id="step-watch">
+<h2>step-watch<a class="headerlink" href="#step-watch" title="Permalink to this headline">¶</a></h2>
+<p>Python expressions + PDB commands</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span># stepwatch, nextwatch
+!global __currentframe, __stack; from inspect import currentframe as __currentframe, stack as __stack
+!global __copy; from copy import copy as __copy
+!global __Pdb; from pdb import Pdb as __Pdb
+!global __pdb; __pdb = [__framerec[0].f_locals.get(&quot;pdb&quot;) or __framerec[0].f_locals.get(&quot;self&quot;) for __framerec in __stack() if (__framerec[0].f_locals.get(&quot;pdb&quot;) or __framerec[0].f_locals.get(&quot;self&quot;)).__class__ == __Pdb][-1]
+
+alias _setup_watchpoint !global __key, __dict, __val; __key = &#39;%1&#39;; __dict = __currentframe().f_locals if __currentframe().f_locals.has_key(__key) else __currentframe().f_globals; __val = __copy(%1)
+
+alias _nextwatch_internal next;; !if __dict[__key] == __val: __pdb.cmdqueue.append(&quot;_nextwatch_internal %1&quot;)
+alias _stepwatch_internal step;; !if __dict[__key] == __val: __pdb.cmdqueue.append(&quot;_stepwatch_internal %1&quot;)
+
+alias nextwatch __pdb.cmdqueue.extend([&quot;_setup_watchpoint %1&quot;, &quot;_nextwatch_internal&quot;])
+alias stepwatch __pdb.cmdqueue.extend([&quot;_setup_watchpoint %1&quot;, &quot;_stepwatch_internal&quot;])
+</pre></div>
+</div>
+<p>Credit: <a class="reference external" href="http://stackoverflow.com/questions/7668979/how-do-you-watch-a-variable-in-pdb">http://stackoverflow.com/questions/7668979/how-do-you-watch-a-variable-in-pdb</a></p>
+</div>
+</div>
+<div class="section" id="see-also">
+<h1>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/gotcha/ipdb">ipdb</a>: Drop-in replacement for PDB that provides syntax
+highlighting and tab completion</li>
+<li><a class="reference external" href="http://dzone.com/snippets/remote-debugging-python-using">rdb</a>: PDB over a socket</li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/pudb">pudb</a>: Full screen, console debugger</li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/pdbpp/">pdb++</a>: Overrides PDB with some advanced functionality like
+watches</li>
+<li><a class="reference external" href="https://github.com/Kozea/wdb">wdb</a>: PDB over WebSockets</li>
+<li><code class="docutils literal notranslate"><span class="pre">pdbtrack</span></code> is included with modern distributions of
+<a class="reference external" href="https://launchpad.net/python-mode/">python-mode</a>, and allows Emacs to open files as they’re debugged
+by PDB.</li>
+</ul>
+<p>Recent versions add support for <a class="reference external" href="http://yergler.net/blog/2012/06/07/mapping-file-paths-for-pdbtrack/">filename mapping</a> which is
+useful when debugging in a SSH session (ie, Eventbrite’s
+vagrant-based setup).</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.dalkescientific.com/writings/diary/archive/2005/04/20/tracing_python_code.html">Tracing Python Code</a></li>
+<li><a class="reference external" href="http://sourceforge.net/blog/watchpoints-in-python/">Watchpoints in Python</a></li>
+</ul>
+</div>
+<div class="section" id="so-remember">
+<h1>So remember…<a class="headerlink" href="#so-remember" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>PDB lets you explore your program</li>
+<li>You can stop in code you can’t edit</li>
+<li>PDB is an extensible tool</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2013-2018, Nathan Yergler.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/slides.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-188298-2']);
+      _gaq.push(['_setDomainName', 'none']);
+      _gaq.push(['_setAllowLinker', true]);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    
+  </body>
+</html>

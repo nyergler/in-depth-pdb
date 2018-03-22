@@ -1,0 +1,121 @@
+h1 {
+  font-size: 45px;
+  line-height: 45px;
+  letter-spacing: -2px;
+  color: #515151;
+}
+
+.segue h1 {
+  color: #e6e6e6;
+  font-size: 60px;
+}
+
+a.headerlink {
+    visibility: hidden;
+}
+
+h1:hover > a.headerlink,
+h2:hover > a.headerlink,
+h3:hover > a.headerlink,
+h4:hover > a.headerlink,
+h5:hover > a.headerlink,
+h6:hover > a.headerlink,
+dt:hover > a.headerlink {
+    visibility: visible;
+}
+
+.column-break-before {
+    break-before: column;
+    -webkit-column-break-before: always;
+}
+
+slides > slide {
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+slides > slide.snap {
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+
+div.highlight > pre {
+  -webkit-column-break-inside: avoid;
+  break-inside: avoid;
+}
+
+slide.tip {
+    background: #f6c000;
+}
+
+.span-columns {
+    column-span: all;
+    -webkit-column-span: all;
+}
+
+.highlight-code slide.current span.hll {
+  opacity: 1;
+}
+
+.big-example pre {
+    font-size: 125%;
+    line-height: 145%;
+}
+
+article.columns-2 div:first-of-type {
+    display: inline-block;
+}
+
+div.highlight {
+
+    background: none;
+
+}
+
+div.highlight > pre {
+
+    left: 0px;
+    padding-left: 0;
+
+}
+
+.title-slide hgroup h2 {
+    color: white;
+}
+
+.larger {
+  font-size: 32px;
+  line-height: 36px;
+  letter-spacing: 0;
+}
+
+div.gutter   {
+    padding-left: 32px;
+}
+
+.arrow-line:before {
+    content: " ";
+    background-image: url("Go-next.svg");
+    background-size: 32px 32px;
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    margin-left: -32px;
+}
+
+.strike {
+  text-decoration: line-through;
+}
+
+div.slides-link pre {
+  font-size: 1.5em;
+}
+
+tt {
+  font-family: 'Source Code Pro', 'Courier New', monospace;
+  font-weight: bold;
+}

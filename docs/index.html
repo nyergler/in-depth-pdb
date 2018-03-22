@@ -1,0 +1,801 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>In Depth PDB &#8212; In Depth PDB</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">In Depth PDB</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=nyergler&repo=in-depth-pdb&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">In Depth PDB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#invoking-pdb">Invoking PDB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interacting-with-locals">Interacting with Locals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#navigating-the-stack">Navigating the Stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#following-execution">Following Execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-breakpoints">Setting Breakpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extending-pdb">Extending PDB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-tools">Other Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#further-reading">Further Reading</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <h3>Slides</h3>
+  <ul class="this-page-menu">
+    <li><a href="./slides/index.html"
+           rel="nofollow">View as slides</a></li>
+  </ul>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="in-depth-pdb">
+<h1>In Depth PDB<a class="headerlink" href="#in-depth-pdb" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>Most developers have a preferred debugging strategy, and many of them
+are variations on the <code class="docutils literal notranslate"><span class="pre">print</span></code> statement. There’s nothing wrong with
+that, you can get a lot of information about what a program is doing
+by logging information about its state. They fall short, however, in
+that you need to know what you want to log before you start: if you
+realize after seeing some data that what you really need to know if
+the state of some other variable, you usually need to change the print
+statements and restart execution.</p>
+<p>Debuggers – and PDB, in particular – are a more flexible tool for
+inspecting the state of a running program. They allow you to
+introspect the state of variables, examine the call stack, and in some
+cases modify the state of the program without restarting it. This
+document introduces PDB, the Python Debugger, and explains how it can
+be leveraged effectively.</p>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pdb</span></code> is a module that ships with Python, and so is included with
+any deployment. The most basic way to use it is to import the module
+and call <code class="docutils literal notranslate"><span class="pre">set_trace()</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">set_trace</span></code> instructs Python to drop into the debugger at that
+point. For example, if we have the following function defined in
+<code class="docutils literal notranslate"><span class="pre">funcs.py</span></code>:</p>
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">calc_sum</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="n">a</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</td></tr></table></div>
+<p>If we add the following line after line 3 (<code class="docutils literal notranslate"><span class="pre">result</span> <span class="pre">=</span> <span class="pre">0</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>When <code class="docutils literal notranslate"><span class="pre">calc_sum()</span></code> is called, the debugger will start at the <code class="docutils literal notranslate"><span class="pre">set_trace</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">funcs</span> <span class="k">import</span> <span class="n">calc_sum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calc_sum</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">&gt; /home/nathan/p/pdb/funcs.py(7)calc_sum()</span>
+<span class="go">-&gt; for a in args:</span>
+<span class="go">(Pdb)</span>
+</pre></div>
+</div>
+<p>The PDB prompt – <code class="docutils literal notranslate"><span class="pre">(Pdb)</span></code> – shows the next command that will be
+executed, in this case <code class="docutils literal notranslate"><span class="pre">for</span> <span class="pre">a</span> <span class="pre">in</span> <span class="pre">args:</span></code>, along with the filename
+(<code class="docutils literal notranslate"><span class="pre">funcs.py</span></code>), line number (<code class="docutils literal notranslate"><span class="pre">7</span></code>), and the function currently being
+executed (<code class="docutils literal notranslate"><span class="pre">calc_sum</span></code>).</p>
+<p>At the prompt you can enter one of the <a class="reference external" href="http://docs.python.org/2/library/pdb.html#debugger-commands">debugger commands</a> or
+evaluate a Python expression, such as a local variable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(Pdb) !result
+0
+</pre></div>
+</div>
+<p>The continue (<code class="docutils literal notranslate"><span class="pre">cont</span></code>) command will exit the debugger and continue
+normal execution:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">cont</span>
+<span class="mi">6</span>
+<span class="o">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>In this case continuing execution results in the <code class="docutils literal notranslate"><span class="pre">calc_sum</span></code> function
+completing, and the result (<code class="docutils literal notranslate"><span class="pre">6</span></code>) being printed.</p>
+<div class="sidebar">
+<p class="first sidebar-title">Trace Functions &amp; Debuggers</p>
+<p>So what is Python and the PDB module doing when you call
+<code class="docutils literal notranslate"><span class="pre">set_trace()</span></code>? CPython supports setting a system trace function,
+which supports the implementation of debuggers and other source
+analysis tools in Python itself. A trace function is registered for a
+specific thread, and is called when a stack frame is executed. Trace
+functions are registered using <code class="docutils literal notranslate"><span class="pre">sys.settrace</span></code>, and provide quite a
+bit of flexibility for introspecting what happens when a program is
+running.</p>
+<p class="last">See the <a class="reference external" href="http://docs.python.org/2/library/sys.html#sys.settrace">sys.settrace</a> documentation for details about writing a
+trace function.</p>
+</div>
+</div>
+<div class="section" id="invoking-pdb">
+<h2>Invoking PDB<a class="headerlink" href="#invoking-pdb" title="Permalink to this headline">¶</a></h2>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">set_trace</span></code> may be the most common way to enter PDB, but it
+is definitely not the only way. The PDB module provides several ways
+to enter the debugger; we’ll look at the main ones, and then focus on
+two.</p>
+<div class="section" id="python-m-pdb">
+<h3>python -m pdb<a class="headerlink" href="#python-m-pdb" title="Permalink to this headline">¶</a></h3>
+<p>PDB can by run as a Python module using <code class="docutils literal notranslate"><span class="pre">-m</span></code> command line parameter
+to Python. In this mode, additional arguments are interpreted as the
+program to run under PDB. For example, if we add a <code class="docutils literal notranslate"><span class="pre">__main__</span></code>
+function to our <code class="docutils literal notranslate"><span class="pre">funcs.py</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="nb">print</span> <span class="n">calc_sum</span><span class="p">(</span><span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>We can execute it with PDB:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m pdb funcs.py
+</pre></div>
+</div>
+<p>This will drop us into PDB immediately, allowing us to set
+breakpoints, examine initial state, etc:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./bin/python -m pdb funcs.py
+&gt; /Users/nathan/work/pdb/funcs.py(1)&lt;module&gt;()
+-&gt; def calc_sum(*args):
+(Pdb)
+</pre></div>
+</div>
+<p>Note that the “next” frame to be executed is the <code class="docutils literal notranslate"><span class="pre">calc_sum</span></code> function
+definition: this is because when running as a module, PDB stops
+execution before the program begins. If we type <code class="docutils literal notranslate"><span class="pre">next</span></code> to go to the
+next frame, you’ll see that it jumps over the function body to
+<code class="docutils literal notranslate"><span class="pre">__main__</span></code> block.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="nb">next</span>
+<span class="o">&gt;</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">funcs</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This makes sense when you remember that function
+declarations are executed on import, and bodies are executed on call.</p>
+<p>When your program ends, it will automatically be restarted for another run.</p>
+<div class="sidebar">
+<p class="first sidebar-title">Running Django under PDB</p>
+<p>It’s entirely possible to run your Django app under PDB:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m pdb django runserver --settings=pdbdemo.settings
+</pre></div>
+</div>
+<p class="last">If you want to set a low level breakpoint in your application,
+that’s a good way to get the PDB console before anything happens.</p>
+</div>
+</div>
+<div class="section" id="pdb-set-trace">
+<h3>pdb.set_trace<a class="headerlink" href="#pdb-set-trace" title="Permalink to this headline">¶</a></h3>
+<p>We’ve already seen the most common entry to PDB in action,
+<code class="docutils literal notranslate"><span class="pre">set_trace()</span></code>. Calling <code class="docutils literal notranslate"><span class="pre">set_trace()</span></code> enters the debugger
+immediately.</p>
+</div>
+<div class="section" id="pdb-run">
+<h3>pdb.run<a class="headerlink" href="#pdb-run" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">pdb</span></code> module provides three ways to directly execute code under
+control of the debugger. These run methods also allow you to specify
+the global and local context for statements and expressions. I use
+these methods far less than other PDB utilities, but they’re useful
+for very fine grained testing and introspection.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pdb.run</span></code> and <code class="docutils literal notranslate"><span class="pre">pdb.runeval</span></code> execute a Python statement or
+expression, respectively, under control of the debugger. The code
+under test is provided as a string, along with option dictionaries
+specifying the global and local environment.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">next</span></code> command isn’t very useful inside of a <code class="docutils literal notranslate"><span class="pre">run</span></code> call:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pdb</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;funcs.calc_sum(1, 2, 3)&quot;</span><span class="p">)</span>
+<span class="go">&gt; &lt;string&gt;(1)&lt;module&gt;()</span>
+<span class="go">(Pdb) next</span>
+<span class="go">--Return--</span>
+<span class="go">&gt; &lt;string&gt;(1)&lt;module&gt;()-&gt;None</span>
+<span class="go">(Pdb)</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--Return--</span></code> call indicates the debugger is returning from a
+call, in this case our call to <code class="docutils literal notranslate"><span class="pre">funcs.calc_sum</span></code>. Because there’s only the
+one statement to execute, you usually want to <code class="docutils literal notranslate"><span class="pre">step</span></code> into the
+statement when using this approach:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pdb</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;funcs.calc_sum(1, 2, 3)&quot;</span><span class="p">)</span>
+<span class="go">&gt; &lt;string&gt;(1)&lt;module&gt;()-&gt;None</span>
+<span class="go">(Pdb) step</span>
+<span class="go">--Call--</span>
+<span class="go">&gt; /Users/nathan/work/pdb/funcs.py(1)calc_sum()</span>
+<span class="go">-&gt; def calc_sum(*args):</span>
+<span class="go">(Pdb)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">step</span></code> differs from <code class="docutils literal notranslate"><span class="pre">next</span></code> in that step stops inside a called
+function, while next executes called functions at (nearly) full speed,
+only stopping at the next line in the current function.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pdb.runcall</span></code> takes a callable as the first argument, followed by
+any arguments and keyword arguments.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">funcs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdb</span><span class="o">.</span><span class="n">runcall</span><span class="p">(</span><span class="n">funcs</span><span class="o">.</span><span class="n">calc_sum</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">&gt; /Users/nathan/work/pdb/funcs.py(3)calc_sum()</span>
+<span class="go">-&gt; result = 0</span>
+<span class="go">(Pdb) cont</span>
+<span class="go">6</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pdb-post-mortem">
+<h3>pdb.post_mortem<a class="headerlink" href="#pdb-post-mortem" title="Permalink to this headline">¶</a></h3>
+<p>PDB also provides a post-mortem debugger, which is useful for
+debugging code that’s already crashed. Consider the following addition
+to <code class="docutils literal notranslate"><span class="pre">funcs.py</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">product_inverses</span><span class="p">(</span><span class="n">ints</span><span class="p">):</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ints</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+<p>This function calculates the product of the inverses of a series of
+numbers. But it has a problem:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">funcs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">funcs</span><span class="o">.</span><span class="n">product_inverses</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="go">0.16666666666666666</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">funcs</span><span class="o">.</span><span class="n">product_inverses</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;funcs.py&quot;</span>, line <span class="m">16</span>, in <span class="n">product_inverses</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">i</span><span class="p">)</span>
+<span class="gr">ZeroDivisionError</span>: <span class="n">float division by zero</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>This is obviously a contrived example, but imagine that this exception
+was raised by code that you were calling and didn’t have good
+visibility into. The post-mortem debugger lets you enter the debugger
+at the point an exception occurred.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span><span class="n">pdb</span><span class="o">.</span><span class="n">pm</span><span class="p">()</span>
+<span class="go">&gt; /Users/nathan/work/pdb/./pdbdemo/pdbdemo/funcs.py(16)product_inverses()</span>
+<span class="go">-&gt; result = result * (1.0 / i)</span>
+<span class="go">(Pdb)</span>
+</pre></div>
+</div>
+<p>Note that calling <code class="docutils literal notranslate"><span class="pre">pdb.pm()</span></code> relies on <code class="docutils literal notranslate"><span class="pre">sys.last_traceback</span></code> being
+set. <a class="reference external" href="http://docs.python.org/2/library/sys.html#sys.last_traceback">sys.lasttraceback</a> is set whenever Python encounters an
+unhandled exception.</p>
+<p>There’s a variant of the post-mortem call that you can use within an
+exception handler. Consider the following variant of our
+<code class="docutils literal notranslate"><span class="pre">product_inverses</span></code> function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">try_product_inverses</span><span class="p">(</span><span class="n">ints</span><span class="p">):</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ints</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">i</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">post_mortem</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+<p>If we call this version of the function, we’ll see the post-mortem
+debugger in action:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">funcs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">funcs</span><span class="o">.</span><span class="n">try_product_inverses</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="go">&gt; /Users/nathan/work/pdb/funcs.py(27)try_product_inverses()</span>
+<span class="go">-&gt; result = result * (1.0 / i)</span>
+<span class="go">(Pdb)</span>
+</pre></div>
+</div>
+<p>The interesting thing to note here is that the next frame for PDB is
+where the error actually occurred, <strong>not</strong> where the debugger was
+called. Try replacing the call to <code class="docutils literal notranslate"><span class="pre">post_mortem</span></code> with a call to
+<code class="docutils literal notranslate"><span class="pre">set_trace</span></code> to see the difference.</p>
+</div>
+</div>
+<div class="section" id="interacting-with-locals">
+<h2>Interacting with Locals<a class="headerlink" href="#interacting-with-locals" title="Permalink to this headline">¶</a></h2>
+<p>Entering the debugger is only interesting if you can actually use it
+to figure out what’s going on in a program, so let’s talk about how
+you interact with locals inside of the debugger.</p>
+<p>There are two debugger commands that are useful for inspecting values
+in the debugger:: <code class="docutils literal notranslate"><span class="pre">p</span></code> and <code class="docutils literal notranslate"><span class="pre">pp</span></code> will print and
+“pretty-print” a value, respectively.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">funcs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">funcs</span><span class="o">.</span><span class="n">try_product_inverses</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="go">&gt; /Users/nathan/work/pdb/funcs.py(27)try_product_inverses()</span>
+<span class="go">-&gt; result = result * (1.0 / i)</span>
+<span class="go">(Pdb) p result</span>
+<span class="go">1.0</span>
+<span class="go">(Pdb) pp result</span>
+<span class="go">1.0</span>
+<span class="go">(Pdb)</span>
+</pre></div>
+</div>
+<p>Not that interesting for floats, but when examining dictionaries or
+other larger data structures, the <code class="docutils literal notranslate"><span class="pre">pp</span></code> command can be very useful.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">pp</span> <span class="nb">locals</span><span class="p">()</span>
+<span class="p">{</span><span class="s1">&#39;i&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+ <span class="s1">&#39;ints&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+ <span class="s1">&#39;pdb&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;pdb&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pdb.pyc&#39;</span><span class="o">&gt;</span><span class="p">,</span>
+ <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>PDB also has an <code class="docutils literal notranslate"><span class="pre">args</span></code> command that will output the arguments passed
+to the current function.</p>
+<div class="section" id="evaluating-expressions">
+<h3>Evaluating Expressions<a class="headerlink" href="#evaluating-expressions" title="Permalink to this headline">¶</a></h3>
+<div class="sidebar">
+<p class="first sidebar-title">Command Shortcuts</p>
+<p>Most PDB commands have a short and long form. For example, <code class="docutils literal notranslate"><span class="pre">next</span></code>
+can be abbreviated as <code class="docutils literal notranslate"><span class="pre">n</span></code>. Check the <a class="reference external" href="http://docs.python.org/2/library/pdb.html#debugger-commands">debugger command</a>
+reference for details.</p>
+<p class="last">Note that this short form is a good reason to use <code class="docutils literal notranslate"><span class="pre">!</span></code> to denote
+Python expressions: input that could either be an expression or a
+debugger command is evaluated as the latter. It’s frustrating to
+expect to evaluate a variable named <code class="docutils literal notranslate"><span class="pre">c</span></code> and wind up exiting the
+debugger and continuing instead.</p>
+</div>
+</div>
+</div>
+<div class="section" id="navigating-the-stack">
+<h2>Navigating the Stack<a class="headerlink" href="#navigating-the-stack" title="Permalink to this headline">¶</a></h2>
+<p>Once inside the debugger, it’s useful to be able to figure out where
+you are in the call stack. The <code class="docutils literal notranslate"><span class="pre">where</span></code> command prints the stack
+trace with the most recent call last.</p>
+<p>You can move up and down the call stack with the <code class="docutils literal notranslate"><span class="pre">up</span></code> and <code class="docutils literal notranslate"><span class="pre">down</span></code>
+commands. These are oriented the same was as the output of <code class="docutils literal notranslate"><span class="pre">where</span></code>:
+<code class="docutils literal notranslate"><span class="pre">up</span></code> moves to an earlier frame, <code class="docutils literal notranslate"><span class="pre">down</span></code> to a later frame.</p>
+<p>Finally, while the PDB prompt contains the next line that will be
+executed, it’s often useful to see that line in context. The <code class="docutils literal notranslate"><span class="pre">list</span></code>
+command will display the 11 lines of code around the current line (5
+previous, 5 after). You can optionally specify a range to display
+more; see the <a class="reference external" href="http://docs.python.org/2/library/pdb.html#debugger-commands">command reference</a> for details.</p>
+</div>
+<div class="section" id="following-execution">
+<h2>Following Execution<a class="headerlink" href="#following-execution" title="Permalink to this headline">¶</a></h2>
+<p>We’ve already seen examples of stepping into code (the <code class="docutils literal notranslate"><span class="pre">step</span></code>
+command) and executing the next frame at the current level (<code class="docutils literal notranslate"><span class="pre">next</span></code>).
+Both <code class="docutils literal notranslate"><span class="pre">step</span></code> and <code class="docutils literal notranslate"><span class="pre">next</span></code> execute the current line; the difference is
+that <code class="docutils literal notranslate"><span class="pre">step</span></code> stops at the first possible occasion, which may be in
+the function called. <code class="docutils literal notranslate"><span class="pre">next</span></code> executes the next line and stops when it
+is complete.</p>
+<p>Occasionally you’ll <code class="docutils literal notranslate"><span class="pre">step</span></code> when you wanted to <code class="docutils literal notranslate"><span class="pre">next</span></code>, and wind up
+at a lower level than you want to be at. The <code class="docutils literal notranslate"><span class="pre">return</span></code> command is
+great for this case (or when you’ve realized that the current function
+is uninteresting, not the culprit, etc). <code class="docutils literal notranslate"><span class="pre">return</span></code> continues
+execution until the current function returns.</p>
+<p>There are times when you start debugging an application and want to
+skip over some block of code: a loop that will take a while to run,
+etc. For example, if you broke into the <code class="docutils literal notranslate"><span class="pre">hello</span></code> view at the
+beginning of the function, you might want to jump over calculation of
+the name.</p>
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;World&#39;</span>
+
+    <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span>
+        <span class="s1">&#39;hello.html&#39;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">until</span></code> command to continue execution until the
+program reaches the given line number.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">pdbdemo</span><span class="o">/</span><span class="n">helloworld</span><span class="o">/</span><span class="n">views</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="n">hello</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">u</span> <span class="mi">15</span>
+<span class="n">u</span> <span class="mi">15</span>
+<span class="o">&gt;</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">eggs</span><span class="o">/</span><span class="n">Django</span><span class="o">-</span><span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="mf">7.</span><span class="n">egg</span><span class="o">/</span><span class="n">django</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">handlers</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span><span class="n">get_response</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">callback_args</span><span class="p">,</span> <span class="o">**</span><span class="n">callback_kwargs</span><span class="p">)</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also jump over parts of the code using the cunningly named
+<code class="docutils literal notranslate"><span class="pre">jump</span></code> command.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">pdbdemo</span><span class="o">/</span><span class="n">helloworld</span><span class="o">/</span><span class="n">views</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="n">hello</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">j</span> <span class="mi">15</span>
+<span class="n">j</span> <span class="mi">15</span>
+<span class="o">&gt;</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">pdbdemo</span><span class="o">/</span><span class="n">helloworld</span><span class="o">/</span><span class="n">views</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span><span class="n">hello</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">c</span>
+<span class="n">c</span>
+<span class="p">[</span><span class="mi">08</span><span class="o">/</span><span class="n">Jan</span><span class="o">/</span><span class="mi">2013</span> <span class="mi">17</span><span class="p">:</span><span class="mi">03</span><span class="p">:</span><span class="mi">49</span><span class="p">]</span> <span class="s2">&quot;GET /hello/world/ HTTP/1.1&quot;</span> <span class="mi">500</span> <span class="mi">57888</span>
+</pre></div>
+</div>
+<p>The <a class="reference external" href="http://docs.python.org/2/library/pdb.html#debugger-commands">command reference</a> points out that “not all jumps are allowed —
+for instance it is not possible to jump into the middle of a for loop
+or out of a finally clause.” I don’t find many uses for jumps, but
+your mileage may vary.</p>
+<p>Finally, the <code class="docutils literal notranslate"><span class="pre">cont</span></code>inue command continues execution until the next
+breakpoint or trace is encountered.</p>
+</div>
+<div class="section" id="setting-breakpoints">
+<h2>Setting Breakpoints<a class="headerlink" href="#setting-breakpoints" title="Permalink to this headline">¶</a></h2>
+<p>So far we’ve talked about how to enter the debugger and how to
+navigate the stack and follow execution, and those skills will get you
+pretty far. But there are times when it’s not convenient to insert a
+call to <code class="docutils literal notranslate"><span class="pre">set_trace</span></code>, and not practical to step all the way to the
+problem point. For example, what if you want to inspect how middleware
+is loaded in Django? The solution is <em>breakpoints</em>.</p>
+<p>A breakpoint is similar to a call to <code class="docutils literal notranslate"><span class="pre">set_trace</span></code>: when Python
+encounters one, it drops into the debugger. But breakpoints can have
+conditions associated with them, and can be selectively enabled and
+disabled during the run of a program, making them more flexible and
+powerful.</p>
+<p>A breakpoint is set using the <code class="docutils literal notranslate"><span class="pre">break</span></code> command. For example, if we
+wanted to stop the program when we load middleware, we’d start the
+program, enter PDB, and then set the breakpoint:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ../bin/python -m pdb ../bin/django runserver --settings=pdbdemo.settings --nothreading --noreload
+&gt; /Users/nathan/work/pdb/bin/django(3)&lt;module&gt;()
+-&gt; import sys
+(Pdb) break django/core/handlers/base.py:31
+Breakpoint 1 at /Users/nathan/work/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:31
+(Pdb) c
+Validating models...
+
+0 errors found
+Django version 1.4.3, using settings &#39;pdbdemo.settings&#39;
+Development server is running at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+</pre></div>
+</div>
+<p>If we access a URL on the test server, we’ll see the debugger start:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">eggs</span><span class="o">/</span><span class="n">Django</span><span class="o">-</span><span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="mf">7.</span><span class="n">egg</span><span class="o">/</span><span class="n">django</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">handlers</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">31</span><span class="p">)</span><span class="n">load_middleware</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If we <code class="docutils literal notranslate"><span class="pre">cont</span></code>inue at this point, we’ll see Django is ready to serve
+requests.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">c</span>
+<span class="n">Validating</span> <span class="n">models</span><span class="o">...</span>
+
+<span class="mi">0</span> <span class="n">errors</span> <span class="n">found</span>
+<span class="n">Django</span> <span class="n">version</span> <span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="p">,</span> <span class="n">using</span> <span class="n">settings</span> <span class="s1">&#39;pdbdemo.settings&#39;</span>
+<span class="n">Development</span> <span class="n">server</span> <span class="ow">is</span> <span class="n">running</span> <span class="n">at</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">8000</span><span class="o">/</span>
+<span class="n">Quit</span> <span class="n">the</span> <span class="n">server</span> <span class="k">with</span> <span class="n">CONTROL</span><span class="o">-</span><span class="n">C</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>When we request a page with the browser, we’ll see our breakpoint
+triggered. Issuing the <code class="docutils literal notranslate"><span class="pre">where</span></code> command, we can see that we’re inside
+the request handler and <code class="docutils literal notranslate"><span class="pre">load_middleware()</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">eggs</span><span class="o">/</span><span class="n">Django</span><span class="o">-</span><span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="mf">7.</span><span class="n">egg</span><span class="o">/</span><span class="n">django</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">handlers</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">31</span><span class="p">)</span><span class="n">load_middleware</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">where</span>
+
+<span class="o">...</span>
+
+  <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">eggs</span><span class="o">/</span><span class="n">Django</span><span class="o">-</span><span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="mf">7.</span><span class="n">egg</span><span class="o">/</span><span class="n">django</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">handlers</span><span class="o">/</span><span class="n">wsgi</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">219</span><span class="p">)</span><span class="fm">__call__</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_middleware</span><span class="p">()</span>
+<span class="o">&gt;</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">eggs</span><span class="o">/</span><span class="n">Django</span><span class="o">-</span><span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="mf">7.</span><span class="n">egg</span><span class="o">/</span><span class="n">django</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">handlers</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">31</span><span class="p">)</span><span class="n">load_middleware</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+</pre></div>
+</div>
+<p>Note that breakpoints are <em>thread specific</em>. This means that when
+using the Django <code class="docutils literal notranslate"><span class="pre">runserver</span></code> command, you need to disable the
+threaded features. <code class="docutils literal notranslate"><span class="pre">--nothreading</span> <span class="pre">--noreload</span></code> disables the reload
+watcher and threading.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A variant of the <code class="docutils literal notranslate"><span class="pre">break</span></code> command, <code class="docutils literal notranslate"><span class="pre">tbreak</span></code>, takes the same
+arguments, but creates a temporary breakpoint, which is cleared
+after the first hit.</p>
+</div>
+<p>If you press Ctrl-C, the program will restart since we’re running
+under the PDB module. The breakpoint is still active.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="k">break</span>
+<span class="n">Num</span> <span class="n">Type</span>         <span class="n">Disp</span> <span class="n">Enb</span>   <span class="n">Where</span>
+<span class="mi">1</span>   <span class="n">breakpoint</span>   <span class="n">keep</span> <span class="n">yes</span>   <span class="n">at</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">eggs</span><span class="o">/</span><span class="n">Django</span><span class="o">-</span><span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="mf">7.</span><span class="n">egg</span><span class="o">/</span><span class="n">django</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">handlers</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">31</span>
+        <span class="n">breakpoint</span> <span class="n">already</span> <span class="n">hit</span> <span class="mi">1</span> <span class="n">time</span>
+</pre></div>
+</div>
+<p>You can see that PDB reports how many times the breakpoint has been
+triggered.</p>
+<p>The breakpoint number (<code class="docutils literal notranslate"><span class="pre">1</span></code>) above can be used to control its
+behavior with the following commands:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">disable</span> <span class="pre">[bpnum]</span></code> disables the given breakpoint. The breakpoint
+remains set, but will not be triggered when the line is encountered.</li>
+<li><code class="docutils literal notranslate"><span class="pre">enable</span> <span class="pre">[bpnum]</span></code> enables the given breakpoint.</li>
+<li><code class="docutils literal notranslate"><span class="pre">clear</span></code> clears the breakpoints specified. If no breakpoints are
+specified, prompt to clear all breakpoints.</li>
+<li><code class="docutils literal notranslate"><span class="pre">ignore</span> <span class="pre">bpnum</span> <span class="pre">[count]</span></code> will ignore a breakpoint for [count] hits.</li>
+</ul>
+<div class="section" id="breakpoint-conditions">
+<h3>Breakpoint Conditions<a class="headerlink" href="#breakpoint-conditions" title="Permalink to this headline">¶</a></h3>
+<p>You can also specify a condition for a breakpoint. When the breakpoint
+is encountered, the condition is evaluated. If it evaluates True, you
+enter the debugger. A condition can be specified as the final argument
+to the <code class="docutils literal notranslate"><span class="pre">break</span></code> command. It can also be set (or changed) later with
+the <code class="docutils literal notranslate"><span class="pre">condition</span></code> command.</p>
+<p>For example, to set a breakpoint for POST requests in a Django
+project:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ../bin/python -m pdb ../bin/django runserver --settings=pdbdemo.settings --nothreading --noreload
+&gt; /home/nathan/p/pdb/bin/django(3)&lt;module&gt;()
+-&gt; import sys
+(Pdb) break django/core/handlers/base.py:82, request.method.lower() == &#39;post&#39;
+Breakpoint 1 at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:82
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:82
+        stop only if request.method.lower() == &#39;post&#39;
+</pre></div>
+</div>
+<p>The condition follows the module and line number, separated by a
+comma, and is evaluated in the context of the breakpoint.</p>
+<p>If you make a POST request using <code class="docutils literal notranslate"><span class="pre">curl</span></code> after setting the
+breakpoint, the breakpoint will trigger. Making a GET request will not
+trigger the breakpoint.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(Pdb) c
+Validating models...
+
+0 errors found
+Django version 1.4.3, using settings &#39;pdbdemo.settings&#39;
+Development server is running at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+&gt; /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(82)get_response()
+-&gt; urlconf = settings.ROOT_URLCONF
+(Pdb) l
+ 77           try:
+ 78               # Setup default url resolver for this thread, this code is outside
+ 79               # the try/except so we don&#39;t get a spurious &quot;unbound local
+ 80               # variable&quot; exception in the event an exception is raised before
+ 81               # resolver is set
+ 82 B-&gt;                   urlconf = settings.ROOT_URLCONF
+ 83               urlresolvers.set_urlconf(urlconf)
+ 84               resolver = urlresolvers.RegexURLResolver(r&#39;^/&#39;, urlconf)
+ 85               try:
+ 86                   response = None
+ 87                   # Apply request middleware
+(Pdb) n
+&gt; /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py(83)get_response()
+-&gt; urlresolvers.set_urlconf(urlconf)
+(Pdb) !request.method
+&#39;POST&#39;
+(Pdb) c
+[08/Jan/2013 22:36:13] &quot;POST /hello/world HTTP/1.1&quot; 200 59
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="extending-pdb">
+<h2>Extending PDB<a class="headerlink" href="#extending-pdb" title="Permalink to this headline">¶</a></h2>
+<p>PDB is pretty powerful on its own, but there are also ways to
+customize it: add commands, set default behavior, etc. As an example,
+<a class="reference external" href="https://github.com/gotcha/ipdb">ipdb</a>, a drop-in replacement that provides syntax highlighting and tab
+completion, simply subclasses the <code class="docutils literal notranslate"><span class="pre">Pdb</span></code> class.</p>
+<div class="section" id="pdbrc">
+<h3>.pdbrc<a class="headerlink" href="#pdbrc" title="Permalink to this headline">¶</a></h3>
+<p>When PDB starts it looks for a <code class="docutils literal notranslate"><span class="pre">.pdbrc</span></code> file in the user’s home
+directory and the current directory (if both are found, the current
+directory file is loaded after the one in the home directory). The
+contents of the <code class="docutils literal notranslate"><span class="pre">.pdbrc</span></code> is executed as if it’d been typed into the
+PDB prompt.</p>
+<p>There are two PDB commands that make this particularly powerful.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">alias</span></code> command allows you to alias a new command to some PDB
+statement. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">alias</span> <span class="n">printdict</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="o">%</span><span class="mf">1.</span><span class="n">items</span><span class="p">():</span> <span class="nb">print</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Will create a <code class="docutils literal notranslate"><span class="pre">printdict</span></code> command. <code class="docutils literal notranslate"><span class="pre">%1</span></code> will replaced by the first
+parameter to the command. Aliases can reference other aliased
+commands, allowing you to compose more powerful commands.</p>
+</div>
+<div class="section" id="breakpoint-command">
+<h3>Breakpoint Command<a class="headerlink" href="#breakpoint-command" title="Permalink to this headline">¶</a></h3>
+<p>PDB also allows you to specify commands to execute when a breakpoint
+is triggered. This allows you to automatically execute any PDB command
+when a breakpoint is encountered, including things like changing the
+ignore count, disabling or enabling other breakpoints, or printing the
+value of a variable.</p>
+<p>Consider the situation where it’d be helpful to display the value of a
+variable when a request comes in: you don’t necessarily want to set a
+breakpoint, you’d just like to see it in the console as you’re
+working. You can do this using breakpoint commands.</p>
+<p>First, start the program under PDB and set the breakpoint like you
+normally would:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ../bin/python -m pdb ../bin/django runserver --settings=pdbdemo.settings --nothreading --noreload
+&gt; /home/nathan/p/pdb/bin/django(3)&lt;module&gt;()
+-&gt; import sys
+(Pdb) break django/core/handlers/base.py:75
+Breakpoint 1 at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
+(Pdb) break
+Num Type         Disp Enb   Where
+1   breakpoint   keep yes   at /home/nathan/p/pdb/eggs/Django-1.4.3-py2.7.egg/django/core/handlers/base.py:75
+</pre></div>
+</div>
+<p>Now set the commands to execute on breakpoint 1:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">commands</span> <span class="mi">1</span>
+<span class="p">(</span><span class="n">com</span><span class="p">)</span> <span class="nb">print</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span>
+<span class="p">(</span><span class="n">com</span><span class="p">)</span> <span class="n">cont</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="k">break</span>
+<span class="n">Num</span> <span class="n">Type</span>         <span class="n">Disp</span> <span class="n">Enb</span>   <span class="n">Where</span>
+<span class="mi">1</span>   <span class="n">breakpoint</span>   <span class="n">keep</span> <span class="n">yes</span>   <span class="n">at</span>
+<span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">p</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">eggs</span><span class="o">/</span><span class="n">Django</span><span class="o">-</span><span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="mf">7.</span><span class="n">egg</span><span class="o">/</span><span class="n">django</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">handlers</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">75</span>
+</pre></div>
+</div>
+<p>You can see the prompt changes from <code class="docutils literal notranslate"><span class="pre">(Pdb)</span></code> to <code class="docutils literal notranslate"><span class="pre">(com)</span></code> when
+entering commands. The command entry is terminated when you type
+<code class="docutils literal notranslate"><span class="pre">end</span></code> or any PDB command that resumes execution (<code class="docutils literal notranslate"><span class="pre">cont</span></code> in this case).</p>
+<p>If we continue execution and make a couple requests, we’ll see the
+<code class="docutils literal notranslate"><span class="pre">print</span></code> command in action:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">cont</span>
+<span class="n">Validating</span> <span class="n">models</span><span class="o">...</span>
+
+<span class="mi">0</span> <span class="n">errors</span> <span class="n">found</span>
+<span class="n">Django</span> <span class="n">version</span> <span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="p">,</span> <span class="n">using</span> <span class="n">settings</span> <span class="s1">&#39;pdbdemo.settings&#39;</span>
+<span class="n">Development</span> <span class="n">server</span> <span class="ow">is</span> <span class="n">running</span> <span class="n">at</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">8000</span><span class="o">/</span>
+<span class="n">Quit</span> <span class="n">the</span> <span class="n">server</span> <span class="k">with</span> <span class="n">CONTROL</span><span class="o">-</span><span class="n">C</span><span class="o">.</span>
+<span class="n">GET</span>
+<span class="o">&gt;</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">p</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">eggs</span><span class="o">/</span><span class="n">Django</span><span class="o">-</span><span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="mf">7.</span><span class="n">egg</span><span class="o">/</span><span class="n">django</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">handlers</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">75</span><span class="p">)</span><span class="n">get_response</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="p">[</span><span class="mi">09</span><span class="o">/</span><span class="n">Jan</span><span class="o">/</span><span class="mi">2013</span> <span class="mi">10</span><span class="p">:</span><span class="mi">45</span><span class="p">:</span><span class="mi">50</span><span class="p">]</span> <span class="s2">&quot;GET /hello/world HTTP/1.1&quot;</span> <span class="mi">200</span> <span class="mi">59</span>
+<span class="n">GET</span>
+<span class="o">&gt;</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">p</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">eggs</span><span class="o">/</span><span class="n">Django</span><span class="o">-</span><span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="mf">7.</span><span class="n">egg</span><span class="o">/</span><span class="n">django</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">handlers</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">75</span><span class="p">)</span><span class="n">get_response</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="p">[</span><span class="mi">09</span><span class="o">/</span><span class="n">Jan</span><span class="o">/</span><span class="mi">2013</span> <span class="mi">10</span><span class="p">:</span><span class="mi">45</span><span class="p">:</span><span class="mi">55</span><span class="p">]</span> <span class="s2">&quot;GET /hello/world HTTP/1.1&quot;</span> <span class="mi">200</span> <span class="mi">59</span>
+<span class="n">POST</span>
+<span class="o">&gt;</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">nathan</span><span class="o">/</span><span class="n">p</span><span class="o">/</span><span class="n">pdb</span><span class="o">/</span><span class="n">eggs</span><span class="o">/</span><span class="n">Django</span><span class="o">-</span><span class="mf">1.4</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="mf">7.</span><span class="n">egg</span><span class="o">/</span><span class="n">django</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">handlers</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">py</span><span class="p">(</span><span class="mi">75</span><span class="p">)</span><span class="n">get_response</span><span class="p">()</span>
+<span class="o">-&gt;</span> <span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="p">[</span><span class="mi">09</span><span class="o">/</span><span class="n">Jan</span><span class="o">/</span><span class="mi">2013</span> <span class="mi">10</span><span class="p">:</span><span class="mi">46</span><span class="p">:</span><span class="mi">18</span><span class="p">]</span> <span class="s2">&quot;POST /hello/world HTTP/1.1&quot;</span> <span class="mi">200</span> <span class="mi">59</span>
+</pre></div>
+</div>
+<p>Note that the normal breakpoint message is still printed unless we use
+the <code class="docutils literal notranslate"><span class="pre">silent</span></code> command in our list of breakpoint commands.</p>
+<p>See the <a class="reference external" href="http://docs.python.org/2/library/pdb.html#debugger-commands">command reference</a> for details.</p>
+</div>
+</div>
+<div class="section" id="other-tools">
+<h2>Other Tools<a class="headerlink" href="#other-tools" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/gotcha/ipdb">ipdb</a> is a drop-in replacement for PDB that provides syntax
+highlighting, tab completion, and better introspection.</li>
+<li><a class="reference external" href="http://dzone.com/snippets/remote-debugging-python-using">rdb</a></li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/pudb">pudb</a></li>
+<li><code class="docutils literal notranslate"><span class="pre">pdbtrack</span></code> is included with modern distributions of
+<a class="reference external" href="https://launchpad.net/python-mode/">python-mode</a>, and allows Emacs to open files as they’re debugged
+by PDB. Recent versions add support for <a class="reference external" href="http://yergler.net/blog/2012/06/07/mapping-file-paths-for-pdbtrack/">filename mapping</a> which is
+useful when debugging in a SSH session (ie, Eventbrite’s
+vagrant-based setup).</li>
+</ul>
+</div>
+<div class="section" id="further-reading">
+<h2>Further Reading<a class="headerlink" href="#further-reading" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="http://www.dalkescientific.com/writings/diary/archive/2005/04/20/tracing_python_code.html">Tracing Python Code</a></li>
+<li><a class="reference external" href="http://sourceforge.net/blog/watchpoints-in-python/">Watchpoints in Python</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2013-2018, Nathan Yergler.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-188298-2']);
+      _gaq.push(['_setDomainName', 'none']);
+      _gaq.push(['_setAllowLinker', true]);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    
+  </body>
+</html>
